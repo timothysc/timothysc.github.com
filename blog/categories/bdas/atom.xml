@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: Bdas | code spelunking]]></title>
-  <link href="http://timothysc.github.io/timothysc.guthub.io/blog/categories/bdas/atom.xml" rel="self"/>
-  <link href="http://timothysc.github.io/timothysc.guthub.io/"/>
-  <updated>2017-03-04T15:12:21-06:00</updated>
-  <id>http://timothysc.github.io/timothysc.guthub.io/</id>
+  <link href="http://timothysc.github.io/blog/categories/bdas/atom.xml" rel="self"/>
+  <link href="http://timothysc.github.io/"/>
+  <updated>2017-03-04T16:19:38-06:00</updated>
+  <id>http://timothysc.github.io/</id>
   <author>
     <name><![CDATA[Timothy St. Clair]]></name>
     <email><![CDATA[timothysc@gmail.com]]></email>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Getting Started With Mesos on Fedora 21 and CentOS 7]]></title>
-    <link href="http://timothysc.github.io/timothysc.guthub.io/blog/2014/09/08/mesos-breeze/"/>
+    <link href="http://timothysc.github.io/blog/2014/09/08/mesos-breeze/"/>
     <updated>2014-09-08T10:00:00-05:00</updated>
-    <id>http://timothysc.github.io/timothysc.guthub.io/blog/2014/09/08/mesos-breeze</id>
+    <id>http://timothysc.github.io/blog/2014/09/08/mesos-breeze</id>
     <content type="html"><![CDATA[<p><img class="left" src="/images/mesos_logo.png"></p>
 
 <h2>Background</h2>
@@ -164,9 +164,9 @@ deploying them doesn&rsquo;t have to be, and <strong>it&rsquo;s a breeze with Me
   
   <entry>
     <title type="html"><![CDATA[Hot Rod Hadoop With Tachyon on Fedora 21 (Rawhide)]]></title>
-    <link href="http://timothysc.github.io/timothysc.guthub.io/blog/2014/02/17/bdas-tachyon/"/>
+    <link href="http://timothysc.github.io/blog/2014/02/17/bdas-tachyon/"/>
     <updated>2014-02-17T10:00:00-06:00</updated>
-    <id>http://timothysc.github.io/timothysc.guthub.io/blog/2014/02/17/bdas-tachyon</id>
+    <id>http://timothysc.github.io/blog/2014/02/17/bdas-tachyon</id>
     <content type="html"><![CDATA[<p><img class="left" src="/images/Tachyon.jpg" title="" ></p>
 
 <h2>Background</h2>

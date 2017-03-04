@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: Yarn | code spelunking]]></title>
-  <link href="http://timothysc.github.io/timothysc.guthub.io/blog/categories/yarn/atom.xml" rel="self"/>
-  <link href="http://timothysc.github.io/timothysc.guthub.io/"/>
-  <updated>2017-03-04T15:12:21-06:00</updated>
-  <id>http://timothysc.github.io/timothysc.guthub.io/</id>
+  <link href="http://timothysc.github.io/blog/categories/yarn/atom.xml" rel="self"/>
+  <link href="http://timothysc.github.io/"/>
+  <updated>2017-03-04T16:19:38-06:00</updated>
+  <id>http://timothysc.github.io/</id>
   <author>
     <name><![CDATA[Timothy St. Clair]]></name>
     <email><![CDATA[timothysc@gmail.com]]></email>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Configuring a Personal Hadoop Development Environment on Fedora 18]]></title>
-    <link href="http://timothysc.github.io/timothysc.guthub.io/blog/2013/04/22/personalhadoop/"/>
+    <link href="http://timothysc.github.io/blog/2013/04/22/personalhadoop/"/>
     <updated>2013-04-22T10:00:00-05:00</updated>
-    <id>http://timothysc.github.io/timothysc.guthub.io/blog/2013/04/22/personalhadoop</id>
+    <id>http://timothysc.github.io/blog/2013/04/22/personalhadoop</id>
     <content type="html"><![CDATA[<h2>Background</h2>
 
 <p>The following post outlines a setup and configuration of a &ldquo;personal hadoop&rdquo; development environment that is much akin to a &ldquo;personal condor&rdquo; setup.

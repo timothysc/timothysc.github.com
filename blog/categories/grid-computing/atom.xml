@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: Grid Computing | code spelunking]]></title>
-  <link href="http://timothysc.github.io/timothysc.guthub.io/blog/categories/grid-computing/atom.xml" rel="self"/>
-  <link href="http://timothysc.github.io/timothysc.guthub.io/"/>
-  <updated>2017-03-04T15:12:21-06:00</updated>
-  <id>http://timothysc.github.io/timothysc.guthub.io/</id>
+  <link href="http://timothysc.github.io/blog/categories/grid-computing/atom.xml" rel="self"/>
+  <link href="http://timothysc.github.io/"/>
+  <updated>2017-03-04T16:19:38-06:00</updated>
+  <id>http://timothysc.github.io/</id>
   <author>
     <name><![CDATA[Timothy St. Clair]]></name>
     <email><![CDATA[timothysc@gmail.com]]></email>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Getting Started With Mesos on Fedora 21 and CentOS 7]]></title>
-    <link href="http://timothysc.github.io/timothysc.guthub.io/blog/2014/09/08/mesos-breeze/"/>
+    <link href="http://timothysc.github.io/blog/2014/09/08/mesos-breeze/"/>
     <updated>2014-09-08T10:00:00-05:00</updated>
-    <id>http://timothysc.github.io/timothysc.guthub.io/blog/2014/09/08/mesos-breeze</id>
+    <id>http://timothysc.github.io/blog/2014/09/08/mesos-breeze</id>
     <content type="html"><![CDATA[<p><img class="left" src="/images/mesos_logo.png"></p>
 
 <h2>Background</h2>
@@ -164,9 +164,9 @@ deploying them doesn&rsquo;t have to be, and <strong>it&rsquo;s a breeze with Me
   
   <entry>
     <title type="html"><![CDATA[Hot Rod Hadoop With Tachyon on Fedora 21 (Rawhide)]]></title>
-    <link href="http://timothysc.github.io/timothysc.guthub.io/blog/2014/02/17/bdas-tachyon/"/>
+    <link href="http://timothysc.github.io/blog/2014/02/17/bdas-tachyon/"/>
     <updated>2014-02-17T10:00:00-06:00</updated>
-    <id>http://timothysc.github.io/timothysc.guthub.io/blog/2014/02/17/bdas-tachyon</id>
+    <id>http://timothysc.github.io/blog/2014/02/17/bdas-tachyon</id>
     <content type="html"><![CDATA[<p><img class="left" src="/images/Tachyon.jpg" title="" ></p>
 
 <h2>Background</h2>
@@ -301,9 +301,9 @@ in our simple example. It also enables some very interesting prospects for other
   
   <entry>
     <title type="html"><![CDATA[Bootstrapping Your MapReduce 2.X Programming on Fedora 20]]></title>
-    <link href="http://timothysc.github.io/timothysc.guthub.io/blog/2013/09/14/hadoop-mapreduce/"/>
+    <link href="http://timothysc.github.io/blog/2013/09/14/hadoop-mapreduce/"/>
     <updated>2013-09-14T10:00:00-05:00</updated>
-    <id>http://timothysc.github.io/timothysc.guthub.io/blog/2013/09/14/hadoop-mapreduce</id>
+    <id>http://timothysc.github.io/blog/2013/09/14/hadoop-mapreduce</id>
     <content type="html"><![CDATA[<p><img src="/images/ElephantCowboy.jpg" alt="Picture Courtesy of Mauro Flores jr"/></p>
 
 <h2>Background</h2>
@@ -408,9 +408,9 @@ hadoop fs -put constitution.txt /user/tstclair
   
   <entry>
     <title type="html"><![CDATA[Leveraging Systemd Cgroup Integration to Provide SLAs on Fedora 18 & 19]]></title>
-    <link href="http://timothysc.github.io/timothysc.guthub.io/blog/2013/06/14/systemd-cgroup-sla/"/>
+    <link href="http://timothysc.github.io/blog/2013/06/14/systemd-cgroup-sla/"/>
     <updated>2013-06-14T10:00:00-05:00</updated>
-    <id>http://timothysc.github.io/timothysc.guthub.io/blog/2013/06/14/systemd-cgroup-sla</id>
+    <id>http://timothysc.github.io/blog/2013/06/14/systemd-cgroup-sla</id>
     <content type="html"><![CDATA[<h2>Background</h2>
 
 <p>In the not-so-distant past, enterprise data centers would create silos for specific
@@ -612,9 +612,9 @@ give administrators and developers another tool in which to help create SLAs in 
   
   <entry>
     <title type="html"><![CDATA[Configuring a Personal Hadoop Development Environment on Fedora 18]]></title>
-    <link href="http://timothysc.github.io/timothysc.guthub.io/blog/2013/04/22/personalhadoop/"/>
+    <link href="http://timothysc.github.io/blog/2013/04/22/personalhadoop/"/>
     <updated>2013-04-22T10:00:00-05:00</updated>
-    <id>http://timothysc.github.io/timothysc.guthub.io/blog/2013/04/22/personalhadoop</id>
+    <id>http://timothysc.github.io/blog/2013/04/22/personalhadoop</id>
     <content type="html"><![CDATA[<h2>Background</h2>
 
 <p>The following post outlines a setup and configuration of a &ldquo;personal hadoop&rdquo; development environment that is much akin to a &ldquo;personal condor&rdquo; setup.

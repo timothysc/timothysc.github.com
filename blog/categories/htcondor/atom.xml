@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: Htcondor | code spelunking]]></title>
-  <link href="http://timothysc.github.io/timothysc.guthub.io/blog/categories/htcondor/atom.xml" rel="self"/>
-  <link href="http://timothysc.github.io/timothysc.guthub.io/"/>
-  <updated>2017-03-04T15:12:21-06:00</updated>
-  <id>http://timothysc.github.io/timothysc.guthub.io/</id>
+  <link href="http://timothysc.github.io/blog/categories/htcondor/atom.xml" rel="self"/>
+  <link href="http://timothysc.github.io/"/>
+  <updated>2017-03-04T16:19:38-06:00</updated>
+  <id>http://timothysc.github.io/</id>
   <author>
     <name><![CDATA[Timothy St. Clair]]></name>
     <email><![CDATA[timothysc@gmail.com]]></email>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Leveraging Systemd Cgroup Integration to Provide SLAs on Fedora 18 & 19]]></title>
-    <link href="http://timothysc.github.io/timothysc.guthub.io/blog/2013/06/14/systemd-cgroup-sla/"/>
+    <link href="http://timothysc.github.io/blog/2013/06/14/systemd-cgroup-sla/"/>
     <updated>2013-06-14T10:00:00-05:00</updated>
-    <id>http://timothysc.github.io/timothysc.guthub.io/blog/2013/06/14/systemd-cgroup-sla</id>
+    <id>http://timothysc.github.io/blog/2013/06/14/systemd-cgroup-sla</id>
     <content type="html"><![CDATA[<h2>Background</h2>
 
 <p>In the not-so-distant past, enterprise data centers would create silos for specific
@@ -219,9 +219,9 @@ give administrators and developers another tool in which to help create SLAs in 
   
   <entry>
     <title type="html"><![CDATA[Configuring a Personal Hadoop Development Environment on Fedora 18]]></title>
-    <link href="http://timothysc.github.io/timothysc.guthub.io/blog/2013/04/22/personalhadoop/"/>
+    <link href="http://timothysc.github.io/blog/2013/04/22/personalhadoop/"/>
     <updated>2013-04-22T10:00:00-05:00</updated>
-    <id>http://timothysc.github.io/timothysc.guthub.io/blog/2013/04/22/personalhadoop</id>
+    <id>http://timothysc.github.io/blog/2013/04/22/personalhadoop</id>
     <content type="html"><![CDATA[<h2>Background</h2>
 
 <p>The following post outlines a setup and configuration of a &ldquo;personal hadoop&rdquo; development environment that is much akin to a &ldquo;personal condor&rdquo; setup.
@@ -402,9 +402,9 @@ File /home/tstclair/work/spaces/timothysc.github.com/source/downloads/code/xml/y
   
   <entry>
     <title type="html"><![CDATA[Per-Process Mount Namespaces]]></title>
-    <link href="http://timothysc.github.io/timothysc.guthub.io/blog/2013/02/22/perprocess/"/>
+    <link href="http://timothysc.github.io/blog/2013/02/22/perprocess/"/>
     <updated>2013-02-22T10:00:00-06:00</updated>
-    <id>http://timothysc.github.io/timothysc.guthub.io/blog/2013/02/22/perprocess</id>
+    <id>http://timothysc.github.io/blog/2013/02/22/perprocess</id>
     <content type="html"><![CDATA[<h2>Background</h2>
 
 <p>&ldquo;Isolation&rdquo; in modern computing comes in many flavors and functions.  Virtual machines, c-groups, chroots/jails,
@@ -582,9 +582,9 @@ int main(int argc, char ** argv)
   
   <entry>
     <title type="html"><![CDATA[Override HTCondor Installation With Sudo]]></title>
-    <link href="http://timothysc.github.io/timothysc.guthub.io/blog/2012/11/12/condor-sudo/"/>
+    <link href="http://timothysc.github.io/blog/2012/11/12/condor-sudo/"/>
     <updated>2012-11-12T03:00:00-06:00</updated>
-    <id>http://timothysc.github.io/timothysc.guthub.io/blog/2012/11/12/condor-sudo</id>
+    <id>http://timothysc.github.io/blog/2012/11/12/condor-sudo</id>
     <content type="html"><![CDATA[<h2>Background</h2>
 
 <p>As a developer, I often find myself wanting to iterate on a build, and test in a sandboxed environment.  Isolating the environment ensures that your changes work well in a controlled experiment, but it has one fundamental flaw, it&rsquo;s not realistic.  In order to truly test a complicated system it&rsquo;s best to put it into some production environment.  This is great for testing, but it has been known to give admins a headache, because you are mucking with a known good installation.  So in this post we will set about the task of overriding an installtion of HTCondor using sudo while keeping the following requirements in mind:</p>

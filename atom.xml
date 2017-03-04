@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[code spelunking]]></title>
-  <link href="http://timothysc.github.io/timothysc.guthub.io/atom.xml" rel="self"/>
-  <link href="http://timothysc.github.io/timothysc.guthub.io/"/>
-  <updated>2017-03-04T15:12:21-06:00</updated>
-  <id>http://timothysc.github.io/timothysc.guthub.io/</id>
+  <link href="http://timothysc.github.io/atom.xml" rel="self"/>
+  <link href="http://timothysc.github.io/"/>
+  <updated>2017-03-04T16:19:38-06:00</updated>
+  <id>http://timothysc.github.io/</id>
   <author>
     <name><![CDATA[Timothy St. Clair]]></name>
     <email><![CDATA[timothysc@gmail.com]]></email>
@@ -15,19 +15,19 @@
   
   <entry>
     <title type="html"><![CDATA[Moved to Medium]]></title>
-    <link href="http://timothysc.github.io/timothysc.guthub.io/blog/2017/03/04/moved-to-medium/"/>
+    <link href="http://timothysc.github.io/blog/2017/03/04/moved-to-medium/"/>
     <updated>2017-03-04T14:37:55-06:00</updated>
-    <id>http://timothysc.github.io/timothysc.guthub.io/blog/2017/03/04/moved-to-medium</id>
+    <id>http://timothysc.github.io/blog/2017/03/04/moved-to-medium</id>
     <content type="html"><![CDATA[<p><a href="http://medium.com/@timothysc">&ldquo;Link to new location&rdquo;</a></p>
 ]]></content>
   </entry>
   
   <entry>
     <title type="html"><![CDATA[Getting Started With Mesos on Fedora 21 and CentOS 7]]></title>
-    <link href="http://timothysc.github.io/timothysc.guthub.io/blog/2014/09/08/mesos-breeze/"/>
+    <link href="http://timothysc.github.io/blog/2014/09/08/mesos-breeze/"/>
     <updated>2014-09-08T10:00:00-05:00</updated>
-    <id>http://timothysc.github.io/timothysc.guthub.io/blog/2014/09/08/mesos-breeze</id>
-    <content type="html"><![CDATA[<p><img class="left" src="http://timothysc.github.io/timothysc.guthub.io/images/mesos_logo.png"></p>
+    <id>http://timothysc.github.io/blog/2014/09/08/mesos-breeze</id>
+    <content type="html"><![CDATA[<p><img class="left" src="http://timothysc.github.io/images/mesos_logo.png"></p>
 
 <h2>Background</h2>
 
@@ -173,10 +173,10 @@ deploying them doesn&rsquo;t have to be, and <strong>it&rsquo;s a breeze with Me
   
   <entry>
     <title type="html"><![CDATA[Hot Rod Hadoop With Tachyon on Fedora 21 (Rawhide)]]></title>
-    <link href="http://timothysc.github.io/timothysc.guthub.io/blog/2014/02/17/bdas-tachyon/"/>
+    <link href="http://timothysc.github.io/blog/2014/02/17/bdas-tachyon/"/>
     <updated>2014-02-17T10:00:00-06:00</updated>
-    <id>http://timothysc.github.io/timothysc.guthub.io/blog/2014/02/17/bdas-tachyon</id>
-    <content type="html"><![CDATA[<p><img class="left" src="http://timothysc.github.io/timothysc.guthub.io/images/Tachyon.jpg" title="" ></p>
+    <id>http://timothysc.github.io/blog/2014/02/17/bdas-tachyon</id>
+    <content type="html"><![CDATA[<p><img class="left" src="http://timothysc.github.io/images/Tachyon.jpg" title="" ></p>
 
 <h2>Background</h2>
 
@@ -310,10 +310,10 @@ in our simple example. It also enables some very interesting prospects for other
   
   <entry>
     <title type="html"><![CDATA[Bootstrapping Your MapReduce 2.X Programming on Fedora 20]]></title>
-    <link href="http://timothysc.github.io/timothysc.guthub.io/blog/2013/09/14/hadoop-mapreduce/"/>
+    <link href="http://timothysc.github.io/blog/2013/09/14/hadoop-mapreduce/"/>
     <updated>2013-09-14T10:00:00-05:00</updated>
-    <id>http://timothysc.github.io/timothysc.guthub.io/blog/2013/09/14/hadoop-mapreduce</id>
-    <content type="html"><![CDATA[<p><img src="http://timothysc.github.io/timothysc.guthub.io/images/ElephantCowboy.jpg" alt="Picture Courtesy of Mauro Flores jr"/></p>
+    <id>http://timothysc.github.io/blog/2013/09/14/hadoop-mapreduce</id>
+    <content type="html"><![CDATA[<p><img src="http://timothysc.github.io/images/ElephantCowboy.jpg" alt="Picture Courtesy of Mauro Flores jr"/></p>
 
 <h2>Background</h2>
 
@@ -417,9 +417,9 @@ hadoop fs -put constitution.txt /user/tstclair
   
   <entry>
     <title type="html"><![CDATA[Leveraging Systemd Cgroup Integration to Provide SLAs on Fedora 18 & 19]]></title>
-    <link href="http://timothysc.github.io/timothysc.guthub.io/blog/2013/06/14/systemd-cgroup-sla/"/>
+    <link href="http://timothysc.github.io/blog/2013/06/14/systemd-cgroup-sla/"/>
     <updated>2013-06-14T10:00:00-05:00</updated>
-    <id>http://timothysc.github.io/timothysc.guthub.io/blog/2013/06/14/systemd-cgroup-sla</id>
+    <id>http://timothysc.github.io/blog/2013/06/14/systemd-cgroup-sla</id>
     <content type="html"><![CDATA[<h2>Background</h2>
 
 <p>In the not-so-distant past, enterprise data centers would create silos for specific
@@ -621,9 +621,9 @@ give administrators and developers another tool in which to help create SLAs in 
   
   <entry>
     <title type="html"><![CDATA[Configuring a Personal Hadoop Development Environment on Fedora 18]]></title>
-    <link href="http://timothysc.github.io/timothysc.guthub.io/blog/2013/04/22/personalhadoop/"/>
+    <link href="http://timothysc.github.io/blog/2013/04/22/personalhadoop/"/>
     <updated>2013-04-22T10:00:00-05:00</updated>
-    <id>http://timothysc.github.io/timothysc.guthub.io/blog/2013/04/22/personalhadoop</id>
+    <id>http://timothysc.github.io/blog/2013/04/22/personalhadoop</id>
     <content type="html"><![CDATA[<h2>Background</h2>
 
 <p>The following post outlines a setup and configuration of a &ldquo;personal hadoop&rdquo; development environment that is much akin to a &ldquo;personal condor&rdquo; setup.
@@ -804,9 +804,9 @@ File /home/tstclair/work/spaces/timothysc.github.com/source/downloads/code/xml/y
   
   <entry>
     <title type="html"><![CDATA[Per-Process Mount Namespaces]]></title>
-    <link href="http://timothysc.github.io/timothysc.guthub.io/blog/2013/02/22/perprocess/"/>
+    <link href="http://timothysc.github.io/blog/2013/02/22/perprocess/"/>
     <updated>2013-02-22T10:00:00-06:00</updated>
-    <id>http://timothysc.github.io/timothysc.guthub.io/blog/2013/02/22/perprocess</id>
+    <id>http://timothysc.github.io/blog/2013/02/22/perprocess</id>
     <content type="html"><![CDATA[<h2>Background</h2>
 
 <p>&ldquo;Isolation&rdquo; in modern computing comes in many flavors and functions.  Virtual machines, c-groups, chroots/jails,
@@ -984,9 +984,9 @@ int main(int argc, char ** argv)
   
   <entry>
     <title type="html"><![CDATA[Override HTCondor Installation With Sudo]]></title>
-    <link href="http://timothysc.github.io/timothysc.guthub.io/blog/2012/11/12/condor-sudo/"/>
+    <link href="http://timothysc.github.io/blog/2012/11/12/condor-sudo/"/>
     <updated>2012-11-12T03:00:00-06:00</updated>
-    <id>http://timothysc.github.io/timothysc.guthub.io/blog/2012/11/12/condor-sudo</id>
+    <id>http://timothysc.github.io/blog/2012/11/12/condor-sudo</id>
     <content type="html"><![CDATA[<h2>Background</h2>
 
 <p>As a developer, I often find myself wanting to iterate on a build, and test in a sandboxed environment.  Isolating the environment ensures that your changes work well in a controlled experiment, but it has one fundamental flaw, it&rsquo;s not realistic.  In order to truly test a complicated system it&rsquo;s best to put it into some production environment.  This is great for testing, but it has been known to give admins a headache, because you are mucking with a known good installation.  So in this post we will set about the task of overriding an installtion of HTCondor using sudo while keeping the following requirements in mind:</p>
@@ -1073,9 +1073,9 @@ File /home/tstclair/work/spaces/timothysc.github.com/source/downloads/code/scrip
   
   <entry>
     <title type="html"><![CDATA[Elastic Grid With Condor and oVirt Integration]]></title>
-    <link href="http://timothysc.github.io/timothysc.guthub.io/blog/2012/09/21/condor-n-overt/"/>
+    <link href="http://timothysc.github.io/blog/2012/09/21/condor-n-overt/"/>
     <updated>2012-09-21T03:50:00-05:00</updated>
-    <id>http://timothysc.github.io/timothysc.guthub.io/blog/2012/09/21/condor-n-overt</id>
+    <id>http://timothysc.github.io/blog/2012/09/21/condor-n-overt</id>
     <content type="html"><![CDATA[<h2>Background</h2>
 
 <p>Gone are the days where an IT administrator could procure a dedicated compute cluster for a single task, so it is often the case where admins are asked to do more with existing resources where possible, especially those which are underutilized.  There are several existing solutions to oversubscription, but few that remain &ldquo;general purpose&rdquo; while adapting to the environment as the load within the cluster changes.  Enter Condor, which has been most well known for its batch processing capabilities, but can also be leveraged in many ways as an IaaS tool when coupled with oVirt.</p>
@@ -1129,9 +1129,9 @@ queue
   
   <entry>
     <title type="html"><![CDATA[Dust Off Nuke It From Orbit]]></title>
-    <link href="http://timothysc.github.io/timothysc.guthub.io/blog/2012/09/12/dust-off-nuke-it-from-orbit/"/>
+    <link href="http://timothysc.github.io/blog/2012/09/12/dust-off-nuke-it-from-orbit/"/>
     <updated>2012-09-12T04:12:00-05:00</updated>
-    <id>http://timothysc.github.io/timothysc.guthub.io/blog/2012/09/12/dust-off-nuke-it-from-orbit</id>
+    <id>http://timothysc.github.io/blog/2012/09/12/dust-off-nuke-it-from-orbit</id>
     <content type="html"><![CDATA[<p>So in an effort to single source the numerous blogs, and other random bitz which have been smatter across the internet, I’ve decided to start putting all my professional efforts into one loc where other developers can easily find sources, blogs, etc.</p>
 ]]></content>
   </entry>
