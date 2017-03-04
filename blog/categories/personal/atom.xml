@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Personal | code spelunking]]></title>
+  <link href="http://timothysc.github.io/timothysc.guthub.io/blog/categories/personal/atom.xml" rel="self"/>
+  <link href="http://timothysc.github.io/timothysc.guthub.io/"/>
+  <updated>2017-03-04T15:12:21-06:00</updated>
+  <id>http://timothysc.github.io/timothysc.guthub.io/</id>
+  <author>
+    <name><![CDATA[Timothy St. Clair]]></name>
+    <email><![CDATA[timothysc@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Dust Off Nuke It From Orbit]]></title>
+    <link href="http://timothysc.github.io/timothysc.guthub.io/blog/2012/09/12/dust-off-nuke-it-from-orbit/"/>
+    <updated>2012-09-12T04:12:00-05:00</updated>
+    <id>http://timothysc.github.io/timothysc.guthub.io/blog/2012/09/12/dust-off-nuke-it-from-orbit</id>
+    <content type="html"><![CDATA[<p>So in an effort to single source the numerous blogs, and other random bitz which have been smatter across the internet, I’ve decided to start putting all my professional efforts into one loc where other developers can easily find sources, blogs, etc.</p>
+]]></content>
+  </entry>
+  
+</feed>

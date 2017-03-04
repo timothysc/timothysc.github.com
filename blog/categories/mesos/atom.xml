@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Mesos | code spelunking]]></title>
+  <link href="http://timothysc.github.io/timothysc.guthub.io/blog/categories/mesos/atom.xml" rel="self"/>
+  <link href="http://timothysc.github.io/timothysc.guthub.io/"/>
+  <updated>2017-03-04T15:12:21-06:00</updated>
+  <id>http://timothysc.github.io/timothysc.guthub.io/</id>
+  <author>
+    <name><![CDATA[Timothy St. Clair]]></name>
+    <email><![CDATA[timothysc@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Getting Started With Mesos on Fedora 21 and CentOS 7]]></title>
+    <link href="http://timothysc.github.io/timothysc.guthub.io/blog/2014/09/08/mesos-breeze/"/>
+    <updated>2014-09-08T10:00:00-05:00</updated>
+    <id>http://timothysc.github.io/timothysc.guthub.io/blog/2014/09/08/mesos-breeze</id>
+    <content type="html"><![CDATA[<p><img class="left" src="/images/mesos_logo.png"></p>
+
+<h2>Background</h2>
+
+<p>For decades now, computer scientists have debated on how
+to coordinate groups of heterogeneous compute resources to solve a set of domain
+specific problems.  &ldquo;Scheduling&rdquo; was the catch all moniker that was used to
+describe this space.  This category of problems is <em>old</em>, therefore the
+scheduling universe is vast, and expansive.</p>
+
+<p>The most recent generation of schedulers that have emerged, strive to address the
+problem of coordinating several distributed applications across a data-center.
+The reason why I find this interesting, is that many distributed applications
+reinvent aspects of a &ldquo;scheduler&rdquo;, often without realizing the depth and breadth
+of the domain they just stepped into.  There is a great ACM article that highlights
+this point <a href="http://queue.acm.org/detail.cfm?id=2482856">&ldquo;There&rsquo;s Just No Getting around It: You&rsquo;re Building a Distributed System&rdquo;.</a></p>
+
+<p>Now-a-days, we&rsquo;re seeing a Cambrian explosion of software stacks, each
+reinventing pieces of the scheduling wheel.  That&rsquo;s all well and good, but
+there is a much easier way.  Enter Apache Mesos, a cluster manager
+that provides efficient resource isolation and sharing across distributed
+applications.</p>
+
+<p>At its core, Mesos is a <strong>focused</strong> meta-scheduler that provides <strong>primitives</strong> to express a wide
+variety of scheduling patterns and use cases. Solutions are <strong>written atop</strong> of Mesos, and are
+targeted for a particular use case.  By remaining focused at its core, Mesos
+is not architecturally encumbered by domain specific problems that often exist
+within other monolithic schedulers.</p>
+
+<hr />
+
+<h2>References</h2>
+
+<ul>
+<li><a href="http://youtu.be/YB1VW0LKzJ4">Introduction to Mesos</a></li>
+<li><a href="http://youtu.be/VQAAkO5B5Hg?list=UUeDh9omC_xMKrar2srQZiLg">John Wilkes #MesosCon Keynote</a></li>
+<li><a href="http://mesos.apache.org/documentation/latest/mesos-architecture/">Mesos Architecture</a></li>
+<li><a href="http://youtu.be/hTcZGODnyf0">Building and Running Distributed Systems using Apache Mesos</a></li>
+<li><a href="http://mesos.apache.org/documentation/latest/app-framework-development-guide/">Framework Development Guide</a></li>
+<li><a href="https://www.youtube.com/user/TwitterUniversity">Twitter University</a></li>
+</ul>
+
+
+<hr />
+
+<h2>Overview</h2>
+
+<p>I often find software first impressions are usually pretty important,
+and if I have to spend hours setting up an application, then that usually colors
+my perspective about the technology.</p>
+
+<p>Therefore, in this post I will run through how simple it is for you to get started with
+Mesos on Fedora 21 and CentOS 7.  <strong>I&rsquo;ll leave HA deployments for another post, because I want
+to outline just how simple it is to setup for &ldquo;trying it out&rdquo;.</strong></p>
+
+<hr />
+
+<h2>Prerequisites</h2>
+
+<ul>
+<li><a href="http://fedoraproject.org/en/get-fedora">Latest Fedora Machine</a> (OR) <a href="http://www.centos.org/download/">CentOS 7 box </a>with<a href="https://fedoraproject.org/wiki/EPEL"> epel installed</a></li>
+</ul>
+
+
+<h3>CentOS 7</h3>
+
+<p>Currently dependent packages have not been fully pulled into CentOS 7, or epel
+channels, but I&rsquo;ve enabled the <a href="http://pkgs.fedoraproject.org/cgit/mesos.git/tree/mesos.spec">mesos.spec</a>
+to build a bundled distribution for those who want to run on CentOS 7.  For
+convenience, rpms can be found <a href="https://tstclair.fedorapeople.org/mesos/centos7/">here</a></p>
+
+<p>But for those who want to rebuild it for themselves, you can download the <a href="http://koji.fedoraproject.org/koji/packageinfo?packageID=17691">srpm</a> and run:
+    $ mock &ndash;clean &ndash;init -r epel-7-x86_64 &ndash;rebuild mesos-0.20.0-2.f421ffd.fc21.src.rpm</p>
+
+<p>You will also need to update your docker installation to 1.X.</p>
+
+<h3>Multi-Node Cluster</h3>
+
+<ul>
+<li>If you setting up a multi-node cluster, it is recommended that you have DNS setup.</li>
+<li>You may also want to alter your firewall settings.</li>
+</ul>
+
+
+<hr />
+
+<h2>Installation</h2>
+
+<pre><code>$ sudo yum install mesos python-mesos mesos-devel mesos-java
+</code></pre>
+
+<hr />
+
+<h2>Setup</h2>
+
+<p>Make sure docker is running:
+    $ systemctl start docker</p>
+
+<h3>Single Node</h3>
+
+<p>Out of the box, the package is configured to run mesos on a single host machine.  Which is convenient for
+developers who just want to install and test their applications locally before submitting to their cluster.</p>
+
+<h3>Multi-Node</h3>
+
+<p>If you want to setup a multi-node cluster there is simply one parameter you need to set on your worker nodes <em>/etc/mesos/mesos-slave-env.sh</em> file:
+    export MESOS_master=yourmaster.yourdomain.com:5050</p>
+
+<hr />
+
+<h2>Running</h2>
+
+<h3>Master Node</h3>
+
+<pre><code>$ systemctl start mesos-master
+</code></pre>
+
+<p>and open a browser to <a href="http://localhost:5050">localhost:5050</a></p>
+
+<h3>Worker Node</h3>
+
+<pre><code>$ systemctl start mesos-slave
+</code></pre>
+
+<p>Now check the &ldquo;Slaves&rdquo; tab on the browser window to verify.</p>
+
+<h3>Smoke Test</h3>
+
+<pre><code>$ mesos execute --command="/bin/sleep 10" --master="yourmaster.yourdomain.com:5050" --name="whizbang"
+</code></pre>
+
+<p>Verify that it ran under the &ldquo;Frameworks&rdquo; tab.</p>
+
+<hr />
+
+<h3>Summary</h3>
+
+<p>Distributed systems can be a complicated and thorny road, but setting up and
+deploying them doesn&rsquo;t have to be, and <strong>it&rsquo;s a breeze with Mesos</strong>.</p>
+
+<p><strong>HaPpY HaCkInG!</strong></p>
+]]></content>
+  </entry>
+  
+</feed>

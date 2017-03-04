@@ -1,0 +1,306 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Elastic Grid With Condor and oVirt Integration - code spelunking</title>
+  <meta name="author" content="Timothy St. Clair">
+
+  
+  <meta name="description" content="Background Gone are the days where an IT administrator could procure a dedicated compute cluster for a single task, so it is often the case where &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://timothysc.github.io/timothysc.guthub.io/blog/2012/09/21/condor-n-overt/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="code spelunking" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">code spelunking</a></h1>
+  
+    <h2>Q: 'Whats under this rock?' A: 'more rocks...'</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="timothysc.github.io/timothysc.guthub.io">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Elastic Grid With Condor and oVirt Integration</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-09-21T03:50:00-05:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>21</span><span class='date-suffix'>st</span>, <span class='date-year'>2012</span></span> <span class='time'>3:50 am</span></time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://timothysc.github.io/timothysc.guthub.io">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h2>Background</h2>
+
+<p>Gone are the days where an IT administrator could procure a dedicated compute cluster for a single task, so it is often the case where admins are asked to do more with existing resources where possible, especially those which are underutilized.  There are several existing solutions to oversubscription, but few that remain &ldquo;general purpose&rdquo; while adapting to the environment as the load within the cluster changes.  Enter Condor, which has been most well known for its batch processing capabilities, but can also be leveraged in many ways as an IaaS tool when coupled with oVirt.</p>
+
+<p>There have been numerous refs in the past to using the <a href="http://youtu.be/kPi8ickYN84">two tools together</a>, but in this post we will explore the idea of using Condor&rsquo;s integration with oVirt to spin the resources directly from Condor, and briefly cover how administrators could use this capability to spin resources &ldquo;on demand&rdquo;.</p>
+
+<hr />
+
+<h2>Setup</h2>
+
+<p>Before you begin, you will need to configure <a href="http://www.ovirt.org/">oVirt</a> and a <a href="http://deltacloud.apache.org/">deltacloud server</a> such that your preconfigured images can be spun via the deltacloud api remotely.  To verify, you can run a simple test program to ensure that it works from a remote machine, as if it were run from condor.</p>
+
+<p>File /home/tstclair/work/spaces/timothysc.github.com/source/downloads/code/c/deltacloud_test.c could not be found</p>
+
+<p>Once this is done, you will then need to install condor-deltacloud-gahp on the submit machines where you want to spin the resources.</p>
+
+<hr />
+
+<h2>Spinning a oVirt Instance with Condor</h2>
+
+<p>Provided you&rsquo;ve setup all the pieces above, you should be able to just submit a grid universe job which referenced the images that you wish to start up.</p>
+
+<pre><code>universe = grid
+grid_resource = deltacloud http://ovirt.yourdomain.com:3002/api
+executable = ovirt_spin_test
+deltacloud_username = vdcadmin@ovirt.yourdomain.com
+deltacloud_password_file = user_pwd
+
+# Just specify the rhevm instance name
+deltacloud_instance_name = kvm_test_image_64
+
+log = job_deltacloud_basic_$(cluster)_$(process).log
+notification = NEVER
+queue
+</code></pre>
+
+<hr />
+
+<h2>Potential Use Cases</h2>
+
+<p>Given the tight level of integration from Condor and oVirt via deltacloud there are a liteny of use cases which could be crafted by administrators to enable the auto spinning of images from condor, which include:</p>
+
+<ul>
+<li>Using the JobRouter to configure for overflow</li>
+<li>Using condor-cron to spin images based on time based activites</li>
+<li>Using DAGMan workflows along with a monitoring activity to spin and clean resources, based on availability</li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Timothy St. Clair</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2012-09-21T03:50:00-05:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>21</span><span class='date-suffix'>st</span>, <span class='date-year'>2012</span></span> <span class='time'>3:50 am</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/computing/'>computing</a>, <a class='category' href='/blog/categories/condor/'>condor</a>, <a class='category' href='/blog/categories/grid-computing/'>grid computing</a>, <a class='category' href='/blog/categories/mrg-grid/'>mrg grid</a>, <a class='category' href='/blog/categories/red-hat/'>red hat</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://timothysc.github.io/timothysc.guthub.io/blog/2012/09/21/condor-n-overt/" data-via="timothysc" data-counturl="http://timothysc.github.io/timothysc.guthub.io/blog/2012/09/21/condor-n-overt/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/09/12/dust-off-nuke-it-from-orbit/" title="Previous Post: Dust off nuke it from orbit">&laquo; Dust off nuke it from orbit</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2012/11/12/condor-sudo/" title="Next Post: Override HTCondor installation with sudo">Override HTCondor installation with sudo &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2017/03/04/moved-to-medium/">Moved to Medium</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/08/mesos-breeze/">Getting Started With Mesos on Fedora 21 and CentOS 7</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/02/17/bdas-tachyon/">Hot Rod Hadoop With Tachyon on Fedora 21 (Rawhide)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/09/14/hadoop-mapreduce/">Bootstrapping Your MapReduce 2.X Programming on Fedora 20</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/06/14/systemd-cgroup-sla/">Leveraging Systemd Cgroup Integration to Provide SLAs on Fedora 18 & 19</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/timothysc">@timothysc</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'timothysc',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2017 - Timothy St. Clair -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'timothysc';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://timothysc.github.io/timothysc.guthub.io/blog/2012/09/21/condor-n-overt/';
+        var disqus_url = 'http://timothysc.github.io/timothysc.guthub.io/blog/2012/09/21/condor-n-overt/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

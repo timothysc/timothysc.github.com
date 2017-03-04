@@ -1,0 +1,647 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Hadoop | code spelunking]]></title>
+  <link href="http://timothysc.github.io/timothysc.guthub.io/blog/categories/hadoop/atom.xml" rel="self"/>
+  <link href="http://timothysc.github.io/timothysc.guthub.io/"/>
+  <updated>2017-03-04T15:12:21-06:00</updated>
+  <id>http://timothysc.github.io/timothysc.guthub.io/</id>
+  <author>
+    <name><![CDATA[Timothy St. Clair]]></name>
+    <email><![CDATA[timothysc@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Hot Rod Hadoop With Tachyon on Fedora 21 (Rawhide)]]></title>
+    <link href="http://timothysc.github.io/timothysc.guthub.io/blog/2014/02/17/bdas-tachyon/"/>
+    <updated>2014-02-17T10:00:00-06:00</updated>
+    <id>http://timothysc.github.io/timothysc.guthub.io/blog/2014/02/17/bdas-tachyon</id>
+    <content type="html"><![CDATA[<p><img class="left" src="/images/Tachyon.jpg" title="" ></p>
+
+<h2>Background</h2>
+
+<p>Within the last couple of years we&rsquo;ve witnessed a natural evolution in
+the &ldquo;Big Data&rdquo; ecosystem.  Where the common theme that you&rsquo;ve probably heard in the
+community that, &ldquo;Memory is King&rdquo;, and it is.  Therefore, if you are looking for performance
+optimization in your stack, an &ldquo;in memory&rdquo; layer should be part of
+the equation.  Enter <em>Tachyon</em>, which provides reliable file sharing across cluster
+frameworks.</p>
+
+<p>Tachyon can be used to support different framworks, as well as different filesystems.
+So to bound the scope of this post, we will outline how to setup Tachyon on a local installation
+to boost performance of map-reduce application whose data is stored in HDFS on Fedora 21.</p>
+
+<hr />
+
+<h2>Special Thanks</h2>
+
+<p>Tachyon is a recent addition to the Fedora channels, and it would not have been possible
+without the efforts of <a href="https://github.com/haoyuan">Haoyuan Li</a>, Gil Cattaneo,
+and <a href="http://chapeau.freevariable.com/">William Benton</a></p>
+
+<hr />
+
+<h2>References</h2>
+
+<ul>
+<li><a href="https://amplab.cs.berkeley.edu/software/">BDAS Stack</a></li>
+<li><a href="http://youtu.be/4lMAsd2LNEE">YouTube - Introduction to Tachyon</a></li>
+<li><a href="http://tachyon-project.org/">Tachyon project</a></li>
+<li><a href="https://fedoraproject.org/wiki/SIGs/bigdata">Fedora BIG Data SIG</a></li>
+<li><a href="http://labs.ericsson.com/blog/going-beyond-hadoop-some-insights-for-big-data-platforms">Going beyond Hadoop</a></li>
+</ul>
+
+
+<hr />
+
+<h2>Prerequisites</h2>
+
+<ul>
+<li><a href="http://fedoraproject.org/en/get-fedora">Latest Fedora Machine</a></li>
+<li><a href="http://timothysc.github.io/blog/2013/09/14/hadoop-mapreduce/">Bootstrapping Your MapReduce 2.X Programming on Fedora 20</a></li>
+</ul>
+
+
+<hr />
+
+<h2>Installation and Setup</h2>
+
+<p>Prior to installing Tachyon please ensure that you have setup your hadoop installation
+as outlined in the pre-reqs.</p>
+
+<p>First you will need to install the tachyon package:</p>
+
+<pre><code>$ sudo yum install amplab-tachyon
+</code></pre>
+
+<p>Now you will need to update /etc/hadoop/core-site.xml configuration for hadoop to
+enable map-reduce to take advantage of tachyon, by appending the following snippet:</p>
+
+<pre><code>&lt;property&gt;
+  &lt;name&gt;fs.tachyon.impl&lt;/name&gt;
+  &lt;value&gt;tachyon.hadoop.TFS&lt;/value&gt;
+&lt;/property&gt;
+</code></pre>
+
+<p>Now that all the plumbing is in place you can restart hadoop</p>
+
+<pre><code>systemctl restart hadoop-namenode hadoop-datanode hadoop-nodemanager hadoop-resourcemanager
+</code></pre>
+
+<p>Next, make certain your local HDFS instance is up and running, then
+you will need to perform a tachyon format.</p>
+
+<pre><code>$ sudo runuser hdfs -s /bin/bash /bin/bash -c "tachyon.sh format"
+&gt; Formatting Tachyon @ localhost
+&gt; Deleting /var/lib/tachyon/journal/
+&gt; Formatting hdfs://localhost:8020/tachyon/data
+&gt; Formatting hdfs://localhost:8020/tachyon/workers
+</code></pre>
+
+<hr />
+
+<h3>Initialization</h3>
+
+<p>Prior to running the daemons you will need to mount the in-memory filesystem.</p>
+
+<pre><code>$ sudo tachyon-mount.sh SudoMount
+</code></pre>
+
+<p>Now you can start the daemons.</p>
+
+<pre><code>$ sudo systemctl start tachyon-master tachyon-slave
+</code></pre>
+
+<p>For completeness you can inspect the logs which are located in the standard system location</p>
+
+<pre><code>$ ls -la /var/log/tachyon
+</code></pre>
+
+<hr />
+
+<h3>Operation</h3>
+
+<p>Once you&rsquo;ve verified tachyon is up and running, you can run a simple mapreduce application
+as seen below:</p>
+
+<pre><code>$ hadoop jar /usr/share/java/hadoop/hadoop-mapreduce-examples.jar wordcount
+  tachyon://localhost:19998/user/tstclair/input/constitution.txt
+  tachyon://localhost:19998/test1
+</code></pre>
+
+<p>You&rsquo;ll notice tha tachyon prefix attached to the input and output locations.  This enables
+hadoop to start the TFS shim which will load and write to tachyon.  To verify you can run the following:</p>
+
+<pre><code>$ sudo runuser hdfs -s /bin/bash /bin/bash -c "tachyon.sh tfs ls /test1"
+&gt; 16.65 KB  02-17-2014 15:41:11:849  In Memory      /test1/part-r-00000
+&gt; 0.00 B    02-17-2014 15:41:12:366  In Memory      /test1/_SUCCESS
+</code></pre>
+
+<p>If you&rsquo;re interested in grok'ing further you can probably find the part file under /mnt/ramdisk.</p>
+
+<h2>Summary</h2>
+
+<p>Tachyon provides reliable in memory file sharing across cluster frameworks, as we have seen
+in our simple example. It also enables some very interesting prospects for other back end filesystems.</p>
+
+<p>In future posts we&rsquo;ll explore more elaborate configurations using tachyon atop different frameworks and filesystems.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Bootstrapping Your MapReduce 2.X Programming on Fedora 20]]></title>
+    <link href="http://timothysc.github.io/timothysc.guthub.io/blog/2013/09/14/hadoop-mapreduce/"/>
+    <updated>2013-09-14T10:00:00-05:00</updated>
+    <id>http://timothysc.github.io/timothysc.guthub.io/blog/2013/09/14/hadoop-mapreduce</id>
+    <content type="html"><![CDATA[<p><img src="/images/ElephantCowboy.jpg" alt="Picture Courtesy of Mauro Flores jr"/></p>
+
+<h2>Background</h2>
+
+<p>Recently the BIG DATA SIG has added Hadoop 2.0.5 (or 2.X series) to the Fedora channels.  This
+marks the first addition into <em>any</em> OS-distribution which meets all the standards, and system integration
+requirements set forth by their steering committee(s).  Don&rsquo;t be fooled, bundling .jars into a package that
+looks like a .rpm or .deb != a compliant package (not even by a long shot).</p>
+
+<p>So to give some props to all the effort that it took to lasso this elephant, this post will outline how to bootstrap
+the default installation for MapReduce development.</p>
+
+<hr />
+
+<h2>References</h2>
+
+<ul>
+<li><a href="https://fedoraproject.org/wiki/Changes/Hadoop">Fedora 20 Hadoop Integration</a></li>
+<li><a href="https://fedoraproject.org/wiki/Big_data_SIG">Fedora BIG DATA SIG</a></li>
+<li><a href="http://fedoraproject.org/wiki/FedUp">Upgrading with FedUp</a></li>
+<li><a href="https://fedoraproject.org/wiki/Packaging:Guidelines?rd=Packaging/Guidelines">Fedora Packaging Guidelines</a></li>
+</ul>
+
+
+<hr />
+
+<h2>Prerequisites</h2>
+
+<ul>
+<li>Fedora 20 Machine</li>
+</ul>
+
+
+<hr />
+
+<h2>Installation and Setup (as root)</h2>
+
+<p>First you will need to install all the default hadoop packages and tools required.</p>
+
+<pre><code>yum install hadoop-common hadoop-hdfs hadoop-libhdfs hadoop-mapreduce hadoop-mapreduce-examples hadoop-yarn maven-* xmvn* 
+</code></pre>
+
+<p>Next you will need need to format your namenode:</p>
+
+<pre><code>runuser hdfs -s /bin/bash /bin/bash -c "hadoop namenode -format"
+</code></pre>
+
+<p>Once your namenode has been formatted you can now start the daemons using the default service methods:</p>
+
+<pre><code>systemctl start hadoop-namenode hadoop-datanode hadoop-nodemanager hadoop-resourcemanager
+</code></pre>
+
+<p>Finally you will want to create the default directories:</p>
+
+<pre><code>hdfs-create-dirs
+</code></pre>
+
+<hr />
+
+<h2>Setting up a Users Sandbox (as root)</h2>
+
+<pre><code>runuser hdfs -s /bin/bash /bin/bash -c "hadoop fs -mkdir /user/tstclair"
+runuser hdfs -s /bin/bash /bin/bash -c "hadoop fs -chown tstclair /user/tstclair"
+</code></pre>
+
+<hr />
+
+<h2>Running WordCount (as user)</h2>
+
+<p>For simplicity I&rsquo;ve setup a WordCount example on github that you can copy.</p>
+
+<pre><code>git clone https://github.com/timothysc/hadoop-tests.github
+</code></pre>
+
+<p>Once it has downloaded you can put the example .txt file into your user location</p>
+
+<pre><code>cd hadoop-tests/WordCount
+hadoop fs -put constitution.txt /user/tstclair
+</code></pre>
+
+<p>Now you can build WordCount against the system installed .jars.</p>
+
+<pre><code>mvn-rpmbuild package 
+</code></pre>
+
+<p>Finally you can run:</p>
+
+<pre><code>hadoop jar wordcount.jar org.myorg.WordCount /user/tstclair /user/tstclair/output 
+</code></pre>
+
+<p>Feel free to cat the part-0000 file to see the results.</p>
+
+<hr />
+
+<h2>In Summary</h2>
+
+<p>Hadoop 2.0.5 now acts like a standard package, with all the accoutrements folks have come to expect.</p>
+
+<p><em>Giddyup!</em></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Leveraging Systemd Cgroup Integration to Provide SLAs on Fedora 18 & 19]]></title>
+    <link href="http://timothysc.github.io/timothysc.guthub.io/blog/2013/06/14/systemd-cgroup-sla/"/>
+    <updated>2013-06-14T10:00:00-05:00</updated>
+    <id>http://timothysc.github.io/timothysc.guthub.io/blog/2013/06/14/systemd-cgroup-sla</id>
+    <content type="html"><![CDATA[<h2>Background</h2>
+
+<p>In the not-so-distant past, enterprise data centers would create silos for specific
+services to gaurentee some metric of performance, or &ldquo;Service Level Agreement&rdquo; (SLA).  However,
+this approach can be costly to create and maintain.</p>
+
+<p>Enter the modern era of cloud computing, and one might wonder, &ldquo;Why not just put it in VM?&rdquo;.  For
+some use cases this might work just fine, because the metrics are &ldquo;good-enough&rdquo;.   Despite this flexibility,
+there are many cases where this approach simply won&rsquo;t meet some measure of performance.  I won&rsquo;t elaborate
+on the details, but it doesn&rsquo;t take Schrödinger math to figure this out, because sometimes the cat
+is dead even before you peak into the box. ;-)</p>
+
+<p>Thus, in this post we will explore leveraging systemd cgroup integration to provide SLAs on Fedora.</p>
+
+<hr />
+
+<h2>References</h2>
+
+<ul>
+<li><a href="http://searchitchannel.techtarget.com/definition/service-level-agreement">Definition SLA</a></li>
+<li><a href="https://access.redhat.com/site/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Resource_Management_Guide/">Redhat Cgroup Documentation</a></li>
+<li><a href="http://0pointer.de/blog/projects/resources.html">Resource Management with Systemd</a></li>
+<li><a href="http://0pointer.de/public/systemd-man/systemd.directives.html">Systemd Service Directives</a></li>
+</ul>
+
+
+<hr />
+
+<h2>Prerequisites</h2>
+
+<ul>
+<li>Fedora 18 or 19 box(es).</li>
+<li>Make certain you&rsquo;ve read the references, as I may gloss over some details in this post.</li>
+</ul>
+
+
+<hr />
+
+<h2>Getting Started</h2>
+
+<p>First you will need to choose a service which has been integrated with systemd that you can plan on tuning.
+In this example I will use &lsquo;condor&rsquo;, but you could use any service that you desire.</p>
+
+<pre><code> sudo yum install condor
+</code></pre>
+
+<p><strong>NOTE:</strong> You could do this with raw cgroups, but it becomes difficult to gaurentee performance unless
+every service is in a group.  So systemd does a lot of the heavy lifting for us.</p>
+
+<p>Next you will need to determine the metrics of performance that you want to provide for that service.  For the
+purposes of simplicity, lets say we want to carve off 50% of the CPU for condor.  You can
+also play with disk-io-bandwidth and network settings too, but I think I will leave that for another post
+as this can be complicated enough.</p>
+
+<p>In order to divide up your machine you will first need to determine the existing
+shares on your machine.  This can be done by dumping the current cgroup settings to a file which
+can then be analyzed to determine the new settings.</p>
+
+<pre><code>cgsnapshot -s &gt; cgroup_snap.conf 
+</code></pre>
+
+<p>If you have a fairly basic setup you will notice the following pattern</p>
+
+<pre><code># Configuration file generated by cgsnapshot
+mount {
+    cpuset = /sys/fs/cgroup/cpuset;
+    cpu = /sys/fs/cgroup/cpu,cpuacct;
+    cpuacct = /sys/fs/cgroup/cpu,cpuacct;
+    memory = /sys/fs/cgroup/memory;
+    devices = /sys/fs/cgroup/devices;
+    freezer = /sys/fs/cgroup/freezer;
+    net_cls = /sys/fs/cgroup/net_cls;
+    blkio = /sys/fs/cgroup/blkio;
+    perf_event = /sys/fs/cgroup/perf_event;
+}
+
+group system {
+    cpu {
+            cpu.rt_period_us="1000000";
+            cpu.rt_runtime_us="0";
+            cpu.cfs_period_us="100000";
+            cpu.cfs_quota_us="-1";
+            cpu.shares="1024";
+    }
+    cpuacct {
+            cpuacct.usage="147354515620554";
+    }
+}
+
+group system/condor.service {
+    cpu {
+            cpu.rt_period_us="1000000";
+            cpu.rt_runtime_us="0";
+            cpu.cfs_period_us="100000";
+            cpu.cfs_quota_us="-1";
+            cpu.shares="1024";
+    }
+    cpuacct {
+            cpuacct.usage="146844720798260";
+    }
+}
+
+... * services look ~= 
+</code></pre>
+
+<hr />
+
+<h2>Analyzing your Configuration</h2>
+
+<p>One thing you will notice is that systemd creates an implied hierarchy on your
+machine by default, where each service has an equal amount of cpu.shares.  This means
+when all services are contending for resources, each &ldquo;service&rdquo; gets an equal
+share.</p>
+
+<p>Lets elaborate on shares a bit.  Say you had two service S(a) = 1, and S(b) = 3 and each service
+has multiple processes all contending for CPU.</p>
+
+<pre><code>%CPU = service.cpu.share /(sum (service shares @ level)) 
+%CPU[S(a)] = 1/4 = 25% 
+%CPU[S(b)] = 3/4 = 75% 
+</code></pre>
+
+<p>So now lets extend this idea and create a simple hierarchy
+where there are two groups, with each group having two services:</p>
+
+<pre><code>            Share   Overall%
+Group 1     1       25%
+    S(a)        1       12.5%
+    S(b)        1       12.5%
+Group 2     3       75%
+    S(c)        3       56.25%
+    S(d)        1       18.75%
+</code></pre>
+
+<p>Hopefully this should be intuitive, however it can quickly goto plaid. Therefore, it&rsquo;s
+important to have a handle on how many services you have planed for a given machine, and
+your intended hierarchy.  Thus the cost of reliable performance is extra complexity, which
+isn&rsquo;t so bad provided you&rsquo;ve done your math.</p>
+
+<hr />
+
+<h2>Altering your Configuration##</h2>
+
+<p>So now lets provision condor such that it has 50% of the CPU.  First we need to get a count
+of number of services that exist on the machine.</p>
+
+<pre><code>$ cgsnapshot -s | grep [.]service | wc -l
+30
+</code></pre>
+
+<p>As you can see from the previous example, and from the documentation, the default cpu.shares
+given to a service is 1024.  Thus if we want 50% CPU:</p>
+
+<pre><code>.50 = condor.cpu.shares/(1024*29 + condor.cpu.shares)
+512*(29) + .50*condor.cpu.shares = condor.cpu.shares
+14848 = (1-.50)*condor.cpu.shares 
+condor.cpu.shares = 14848/.50 = 29696
+</code></pre>
+
+<p>Seem nutty? GOOD! Don&rsquo;t do it this way!  Instead lets use the idea of promoting a top level
+group:</p>
+
+<pre><code>vim /usr/lib/systemd/system/condor.service
+
+[Service]
+ControlGroup=cpu:/condor
+CPUShares=1024
+</code></pre>
+
+<p>Once we exit we will need to restart the daemon and verify it worked.</p>
+
+<pre><code>systemctl daemon-reload
+systemctl restart condor.service
+</code></pre>
+
+<p>You may need to remove any legacy cruft from cgroups, or reboot, but you can compare the two configuration files.</p>
+
+<pre><code>cgsnapshot -s &gt; cgroup_snap_2.conf
+</code></pre>
+
+<p>Next you will want to submit a whole bunch of condor jobs, and try to load down the other services.
+To verify that your machine is behaving as expected you can run:</p>
+
+<pre><code>systemd-cgtop
+</code></pre>
+
+<p>In this example it can be difficult when you have 30 services to accurately test that you are
+guaranteed 50% so I would recommend that the reader promote a couple of services to the top level
+and have them compete in a controlled experiment.</p>
+
+<hr />
+
+<h2>In Summary</h2>
+
+<p>Systemd&rsquo;s integration with cgroups is a many splendid thing, and when used correctly can
+give administrators and developers another tool in which to help create SLAs in their datacenter.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Configuring a Personal Hadoop Development Environment on Fedora 18]]></title>
+    <link href="http://timothysc.github.io/timothysc.guthub.io/blog/2013/04/22/personalhadoop/"/>
+    <updated>2013-04-22T10:00:00-05:00</updated>
+    <id>http://timothysc.github.io/timothysc.guthub.io/blog/2013/04/22/personalhadoop</id>
+    <content type="html"><![CDATA[<h2>Background</h2>
+
+<p>The following post outlines a setup and configuration of a &ldquo;personal hadoop&rdquo; development environment that is much akin to a &ldquo;personal condor&rdquo; setup.
+The primary purpose is to have a single source for configuration and logs along with a soft-link to development built binaries such that switching
+to a different build is a matter of updating a soft-link while maintaining all other data and configuration.</p>
+
+<hr />
+
+<h2>Use Cases</h2>
+
+<ul>
+<li>Comparison testing in a local sandbox without altering an existing system installation.</li>
+<li>Single source configuration and logs</li>
+<li>&hellip;</li>
+</ul>
+
+
+<hr />
+
+<h2>References</h2>
+
+<p>Inter-webz:</p>
+
+<ul>
+<li><a href="http://wiki.apache.org/hadoop/HowToSetupYourDevelopmentEnvironment">http://wiki.apache.org/hadoop/HowToSetupYourDevelopmentEnvironment</a></li>
+<li><a href="http://vichargrave.com/create-a-hadoop-build-and-development-environment-for-hadoop/">http://vichargrave.com/create-a-hadoop-build-and-development-environment-for-hadoop/</a></li>
+<li><a href="http://www.michael-noll.com/tutorials/running-hadoop-on-ubuntu-linux-single-node-cluster/">http://www.michael-noll.com/tutorials/running-hadoop-on-ubuntu-linux-single-node-cluster/</a></li>
+<li><a href="http://wiki.apache.org/hadoop/">http://wiki.apache.org/hadoop/</a></li>
+<li><a href="http://docs.hortonworks.com/CURRENT/index.htm#Appendix/Configuring_Ports/HDFS_Ports.htm">http://docs.hortonworks.com/CURRENT/index.htm#Appendix/Configuring_Ports/HDFS_Ports.htm</a></li>
+</ul>
+
+
+<p>Books:</p>
+
+<ul>
+<li><a href="http://www.amazon.com/Hadoop-The-Definitive-Guide-ebook/dp/B0082FE448/ref=dp_kinw_strp_1">Hadoop &ldquo;The Definitive Guide&rdquo;</a></li>
+</ul>
+
+
+<hr />
+
+<h2>Disclaimers</h2>
+
+<ul>
+<li>Currently this is a non-native development setup that uses the existing maven dependencies.  For details on native packaging please visit <a href="https://fedoraproject.org/wiki/Features/Hadoop">https://fedoraproject.org/wiki/Features/Hadoop</a></li>
+<li>The setup listed below is for creating &ldquo;Single-Node-Cluster&rdquo;</li>
+</ul>
+
+
+<hr />
+
+<h2>Prerequisites</h2>
+
+<h3>Configure Password-less ssh</h3>
+
+<pre><code>yum install openssh openssh-clients openssh-server
+# generate a public/private key, if you don't already have one
+ssh-keygen -t dsa -P '' -f ~/.ssh/id_dsa
+cat ~/.ssh/id_dsa.pub &gt;&gt; ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/*
+
+# testing ssh:
+ps -ef | grep sshd     # verify sshd is running
+ssh localhost          # accept the certification when prompted
+sudo passwd root       # Make sure the root has a password
+</code></pre>
+
+<h3>Install Other Build Dependencies</h3>
+
+<pre><code>yum install cmake git subversion dh-make ant autoconf automake sharutils libtool asciidoc xmlto curl protobuf-compiler gcc-c++ 
+</code></pre>
+
+<h3>Install Java And Deps</h3>
+
+<pre><code>yum install java-1.7.0-openjdk java-1.7.0-openjdk-devel java-1.7.0-openjdk-javadoc *maven*
+</code></pre>
+
+<p>append to your .bashrc file:
+    export JVM_ARGS=&ldquo;-Xmx1024m -XX:MaxPermSize=512m&rdquo;
+    export MAVEN_OPTS=&ldquo;-Xmx1024m -XX:MaxPermSize=512m&rdquo;</p>
+
+<p><strong>NOTE:</strong> These instructions have been updated to build against OpenJDK 7 on F18.  Currently (4/25/13), builds are clean but there are
+some test failures.  To get a complete list of failed tests run:</p>
+
+<pre><code> mvn install -Dmaven.test.failure.ignore=true
+</code></pre>
+
+<hr />
+
+<h2>Building and Setting up a &ldquo;personal-hadoop&rdquo;</h2>
+
+<h3>Building</h3>
+
+<pre><code>git clone git://git.apache.org/hadoop-common.git
+cd hadoop-common
+git checkout -b branch-2.0.4-alpha origin/branch-2.0.4-alpha
+mvn clean package -Pdist -DskipTests
+</code></pre>
+
+<h3>Creating Your &ldquo;personal-hadoop&rdquo; Sandbox</h3>
+
+<p>In this configuration we default to <strong>/home/tstclair</strong></p>
+
+<pre><code>cd ~
+mkdir personal-hadoop
+cd personal-hadoop
+mkdir -p conf data name logs/yarn
+ln -sf &lt;your-git-loc&gt;/hadoop-dist/target/hadoop-2.0.4-alpha home
+</code></pre>
+
+<h3>Override your environment</h3>
+
+<p>append to your .bashrc file:
+    # Hadoop env override:
+    export HADOOP_BASE_DIR=${HOME}/personal-hadoop
+    export HADOOP_LOG_DIR=${HOME}/personal-hadoop/logs
+    export HADOOP_PID_DIR=${HADOOP_BASE_DIR}
+    export HADOOP_CONF_DIR=${HOME}/personal-hadoop/conf
+    export HADOOP_COMMON_HOME=${HOME}/personal-hadoop/home
+    export HADOOP_HDFS_HOME=${HADOOP_COMMON_HOME}
+    export HADOOP_MAPRED_HOME=${HADOOP_COMMON_HOME}
+    # Yarn env override:
+    export HADOOP_YARN_HOME=${HADOOP_COMMON_HOME}
+    export YARN_LOG_DIR=${HADOOP_LOG_DIR}/yarn
+    #classpath override to search hadoop loc
+    export CLASSPATH=/usr/share/java/:${HADOOP_COMMON_HOME}/share
+    #Finally update your PATH
+    export PATH=${HADOOP_COMMON_HOME}/bin:${HADOOP_COMMON_HOME}/sbin:${HADOOP_COMMON_HOME}/libexec:${PATH}</p>
+
+<h3>Verify your setup</h3>
+
+<pre><code>source ~/.bashrc
+which hadoop    # verify it should be ${HOME}/personal-hadoop/home/bin  
+hadoop -help    # verify classpath is correct.
+</code></pre>
+
+<h3>Creating Initial Single Configuration Node Setup</h3>
+
+<p>First copy in the default configuration files:
+    cp ${HADOOP_COMMON_HOME}/etc/hadoop/* ${HADOOP_BASE_DIR}/conf</p>
+
+<p>NOTE: As your configuration testing space expands it is sometimes useful to have your conf directory to also be a softlink of configuration templates.</p>
+
+<p>Next update your <em>hdfs-site.xml</em> with the following:
+File /home/tstclair/work/spaces/timothysc.github.com/source/downloads/code/xml/hdfs-site.xml could not be found</p>
+
+<p>Append, or update, your <em>mapred-site.xml</em> with the following:
+File /home/tstclair/work/spaces/timothysc.github.com/source/downloads/code/xml/mapred-site.xml could not be found</p>
+
+<p>Finally update your <em>yarn-site.xml</em> with the following:
+File /home/tstclair/work/spaces/timothysc.github.com/source/downloads/code/xml/yarn-site.xml could not be found</p>
+
+<p><strong>NOTE:</strong> You may notice that I&rsquo;ve included default variables and their corresponding port numbers to ease default hunting.</p>
+
+<h2>Starting Your Single Node Hadoop Cluster</h2>
+
+<p>Format your namenode (only needed for the 1st setup):
+    hadoop namenode -format
+    #verify output is correct.</p>
+
+<p>Start HDFS:
+    start-dfs.sh</p>
+
+<p>open a browser to <a href="http://localhost:50070">http://localhost:50070</a> and verify you have 1 live node.</p>
+
+<p>Next start yarn:
+    start-yarn.sh</p>
+
+<p>Verify the logs show it&rsquo;s running normally.</p>
+
+<p>Finally check to see if you can run an MR application:
+    cd ${HADOOP_COMMON_HOME}/share/hadoop/mapreduce
+    hadoop jar hadoop-mapreduce-example-2.0.4-alpha.jar randomwriter out</p>
+
+<p><strong>HAPPY HACKING!!!</strong></p>
+]]></content>
+  </entry>
+  
+</feed>

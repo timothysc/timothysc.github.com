@@ -1,0 +1,431 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Per-Process Mount Namespaces - code spelunking</title>
+  <meta name="author" content="Timothy St. Clair">
+
+  
+  <meta name="description" content="Background &ldquo;Isolation&rdquo; in modern computing comes in many flavors and functions. Virtual machines, c-groups, chroots/jails,
+sanboxing, and &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://timothysc.github.io/timothysc.guthub.io/blog/2013/02/22/perprocess/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="code spelunking" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">code spelunking</a></h1>
+  
+    <h2>Q: 'Whats under this rock?' A: 'more rocks...'</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="timothysc.github.io/timothysc.guthub.io">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Per-Process Mount Namespaces</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-02-22T10:00:00-06:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2013</span></span> <span class='time'>10:00 am</span></time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://timothysc.github.io/timothysc.guthub.io">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h2>Background</h2>
+
+<p>&ldquo;Isolation&rdquo; in modern computing comes in many flavors and functions.  Virtual machines, c-groups, chroots/jails,
+sanboxing, and namespaces all have a role to play.  In this post we will review process mount namespace isolation, which allows a process to isolate
+its mount points from the outside world.  Furthermore, it enables cleanup of that namespace, which is highly useful in grid applications.</p>
+
+<hr />
+
+<h2>References</h2>
+
+<p>Before you dive too deep into the code below, it&rsquo;s important to read up on some kernel and system goodies:</p>
+
+<ul>
+<li> <a href="http://lwn.net/Articles/159077/">http://lwn.net/Articles/159077/</a></li>
+<li> <a href="http://lwn.net/Articles/159092/">http://lwn.net/Articles/159092/</a></li>
+<li> <a href="http://www.freedesktop.org/software/systemd/man/systemd.exec.html">http://www.freedesktop.org/software/systemd/man/systemd.exec.html</a></li>
+<li> <a href="http://www.ibm.com/developerworks/linux/library/l-mount-namespaces/index.html">http://www.ibm.com/developerworks/linux/library/l-mount-namespaces/index.html</a></li>
+</ul>
+
+
+<hr />
+
+<h2>Deep Thoughts</h2>
+
+<p>It may take some time to digest all of the reading and figure out how to apply namespaces to your application.  I recommend
+re-reading the use cases outlined kernel documentation on shared subtrees.  The nugget of goodness that we wish to apply here is under
+section 4B.</p>
+
+<pre><code>A process wants its mounts invisible to any other process, but
+still be able to see the other system mounts.
+
+Solution:
+
+To begin with, the administrator can mark the entire mount tree
+as shareable.
+
+mount --make-rshared /
+
+A new process can clone off a new namespace. And mark some part
+of its namespace as slave
+
+mount --make-rslave /myprivatetree
+
+Hence forth any mounts within the /myprivatetree done by the
+process will not show up in any other namespace. However mounts
+done in the parent namespace under /myprivatetree still shows
+up in the process's namespace.
+</code></pre>
+
+<p>In summary, you will want your parent process to recursively slave mount /your/loc, as not to pollute the inherited namespace especially
+in cases where the mount points have shared propagation enabled (Default in Fedora).</p>
+
+<hr />
+
+<h2>Testing</h2>
+
+<p>So I&rsquo;ve created a simple test application which shows how you to hide subprocess mount points.</p>
+
+<div><script src='https://gist.github.com/5015879.js'></script>
+<noscript><pre><code>#define _GNU_SOURCE             /* See feature_test_macros(7) */
+#include &lt;sched.h&gt;
+#include &lt;sys/mount.h&gt;
+#include &lt;sys/types.h&gt;
+#include &lt;sys/wait.h&gt;
+#include &lt;unistd.h&gt;
+#include &lt;errno.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include &lt;dirent.h&gt;
+#include &lt;stdarg.h&gt;
+
+#define _LOG( ... ) {\
+FILE * fp = fopen(&quot;namespace.txt&quot;, &quot;a+&quot;); \
+fprintf(fp, __VA_ARGS__); \
+fclose(fp); }
+
+/////////////////////////////////////////////////////////
+// output the contents of a directory for checking 
+// contents to verify if it&#39;s mounted or not.
+void output_dir(char * pszDir)
+{
+    DIR *dp;
+    struct dirent *ep;     
+    dp = opendir (pszDir);
+
+    _LOG( &quot;[%d] Contents of %s\n&quot;, getpid(), pszDir);
+    
+    if (dp != NULL)
+    {
+        while (ep = readdir (dp))
+            _LOG( &quot;%s\n&quot;, ep-&gt;d_name );
+    
+        closedir (dp);
+    }
+    else
+        perror (&quot;Couldn&#39;t open the directory&quot;);
+}
+
+/////////////////////////////////////////////////////////
+// main entry point
+int main(int argc, char ** argv)
+{
+
+    int ret = 0;
+
+        _LOG( &quot;[%d] STARTING \n&quot;, getpid());
+    
+    // fork fuse mount test application
+    int pid = fork();
+    if (!pid) {        
+            // create a new process mount namespace
+            // don&#39;t muck with the parents, it could leak!
+            ret = unshare(CLONE_NEWNS);
+            if (ret) {
+                _LOG(&quot;FAILED TO UNSHARE\n&quot;);
+                return errno;
+            }
+        
+            _LOG( &quot;[%d] UNSHARE COMPLETE\n&quot;, getpid());
+        
+            // recursively mount everything below / as slave in new pid-namespace
+            // this should override shared propagation 
+            ret = mount(&quot;&quot;, &quot;/&quot;, &quot;dontcare&quot;, MS_REC|MS_SLAVE, &quot;&quot;);
+            if (ret) {
+               _LOG( &quot;failed to mark / rslave for\n&quot; );
+               return errno;
+            }
+        
+            _LOG( &quot;[%d] SLAVE MOUNT COMPLETE\n&quot;, getpid());
+        
+            // Now you can perform any mounts below to your hearts content
+            // In our case we will kick a script that does a fuse mount
+            char *argv[2];
+            argv[0] = strdup(&quot;testfuse.sh&quot;);
+            argv[1] = NULL;
+            execv(&quot;testfuse.sh&quot;, argv);
+        
+       _exit(errno);
+    } else if (pid == -1) {
+        ret = errno;
+    } else {
+        int status;
+        errno = EINVAL;
+        ret = waitpid(pid, &amp;status, 0);
+        ret = ret == pid ? 0 : -1;
+        if (!ret) {
+            ret = status;
+        }
+
+        output_dir(&quot;./fusemount_test/&quot;);
+
+    }   
+
+    _LOG (&quot;[%d] RET=%d\n&quot;,getpid(), ret);
+
+    return ret;
+
+}</code></pre></noscript></div>
+
+
+<p>For more details, please checkout my <a href="http://github.com/timothysc/tests/tree/master/per_process_mounts">tests repo.</a></p>
+
+<hr />
+
+<h2>Applications</h2>
+
+<ul>
+<li>Cleaning condor job mounts ;-)</li>
+<li>Application security</li>
+<li>User security</li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Timothy St. Clair</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2013-02-22T10:00:00-06:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2013</span></span> <span class='time'>10:00 am</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/computing/'>computing</a>, <a class='category' href='/blog/categories/condor/'>condor</a>, <a class='category' href='/blog/categories/grid-computing/'>grid computing</a>, <a class='category' href='/blog/categories/htcondor/'>htcondor</a>, <a class='category' href='/blog/categories/mrg-grid/'>mrg grid</a>, <a class='category' href='/blog/categories/red-hat/'>red hat</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://timothysc.github.io/timothysc.guthub.io/blog/2013/02/22/perprocess/" data-via="timothysc" data-counturl="http://timothysc.github.io/timothysc.guthub.io/blog/2013/02/22/perprocess/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/11/12/condor-sudo/" title="Previous Post: Override HTCondor installation with sudo">&laquo; Override HTCondor installation with sudo</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/04/22/personalhadoop/" title="Next Post: Configuring a Personal Hadoop Development Environment on Fedora 18">Configuring a Personal Hadoop Development Environment on Fedora 18 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2017/03/04/moved-to-medium/">Moved to Medium</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/08/mesos-breeze/">Getting Started With Mesos on Fedora 21 and CentOS 7</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/02/17/bdas-tachyon/">Hot Rod Hadoop With Tachyon on Fedora 21 (Rawhide)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/09/14/hadoop-mapreduce/">Bootstrapping Your MapReduce 2.X Programming on Fedora 20</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/06/14/systemd-cgroup-sla/">Leveraging Systemd Cgroup Integration to Provide SLAs on Fedora 18 & 19</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/timothysc">@timothysc</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'timothysc',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2017 - Timothy St. Clair -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'timothysc';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://timothysc.github.io/timothysc.guthub.io/blog/2013/02/22/perprocess/';
+        var disqus_url = 'http://timothysc.github.io/timothysc.guthub.io/blog/2013/02/22/perprocess/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

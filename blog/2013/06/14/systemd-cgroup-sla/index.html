@@ -1,0 +1,455 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Leveraging Systemd Cgroup Integration to Provide SLAs on Fedora 18 & 19 - code spelunking</title>
+  <meta name="author" content="Timothy St. Clair">
+
+  
+  <meta name="description" content="Background In the not-so-distant past, enterprise data centers would create silos for specific
+services to gaurentee some metric of performance, or & &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://timothysc.github.io/timothysc.guthub.io/blog/2013/06/14/systemd-cgroup-sla/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="code spelunking" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">code spelunking</a></h1>
+  
+    <h2>Q: 'Whats under this rock?' A: 'more rocks...'</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="timothysc.github.io/timothysc.guthub.io">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Leveraging Systemd Cgroup Integration to Provide SLAs on Fedora 18 & 19</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-06-14T10:00:00-05:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>14</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>10:00 am</span></time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://timothysc.github.io/timothysc.guthub.io">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h2>Background</h2>
+
+<p>In the not-so-distant past, enterprise data centers would create silos for specific
+services to gaurentee some metric of performance, or &ldquo;Service Level Agreement&rdquo; (SLA).  However,
+this approach can be costly to create and maintain.</p>
+
+<p>Enter the modern era of cloud computing, and one might wonder, &ldquo;Why not just put it in VM?&rdquo;.  For
+some use cases this might work just fine, because the metrics are &ldquo;good-enough&rdquo;.   Despite this flexibility,
+there are many cases where this approach simply won&rsquo;t meet some measure of performance.  I won&rsquo;t elaborate
+on the details, but it doesn&rsquo;t take Schrödinger math to figure this out, because sometimes the cat
+is dead even before you peak into the box. ;-)</p>
+
+<p>Thus, in this post we will explore leveraging systemd cgroup integration to provide SLAs on Fedora.</p>
+
+<hr />
+
+<h2>References</h2>
+
+<ul>
+<li><a href="http://searchitchannel.techtarget.com/definition/service-level-agreement">Definition SLA</a></li>
+<li><a href="https://access.redhat.com/site/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Resource_Management_Guide/">Redhat Cgroup Documentation</a></li>
+<li><a href="http://0pointer.de/blog/projects/resources.html">Resource Management with Systemd</a></li>
+<li><a href="http://0pointer.de/public/systemd-man/systemd.directives.html">Systemd Service Directives</a></li>
+</ul>
+
+
+<hr />
+
+<h2>Prerequisites</h2>
+
+<ul>
+<li>Fedora 18 or 19 box(es).</li>
+<li>Make certain you&rsquo;ve read the references, as I may gloss over some details in this post.</li>
+</ul>
+
+
+<hr />
+
+<h2>Getting Started</h2>
+
+<p>First you will need to choose a service which has been integrated with systemd that you can plan on tuning.
+In this example I will use &lsquo;condor&rsquo;, but you could use any service that you desire.</p>
+
+<pre><code> sudo yum install condor
+</code></pre>
+
+<p><strong>NOTE:</strong> You could do this with raw cgroups, but it becomes difficult to gaurentee performance unless
+every service is in a group.  So systemd does a lot of the heavy lifting for us.</p>
+
+<p>Next you will need to determine the metrics of performance that you want to provide for that service.  For the
+purposes of simplicity, lets say we want to carve off 50% of the CPU for condor.  You can
+also play with disk-io-bandwidth and network settings too, but I think I will leave that for another post
+as this can be complicated enough.</p>
+
+<p>In order to divide up your machine you will first need to determine the existing
+shares on your machine.  This can be done by dumping the current cgroup settings to a file which
+can then be analyzed to determine the new settings.</p>
+
+<pre><code>cgsnapshot -s &gt; cgroup_snap.conf 
+</code></pre>
+
+<p>If you have a fairly basic setup you will notice the following pattern</p>
+
+<pre><code># Configuration file generated by cgsnapshot
+mount {
+    cpuset = /sys/fs/cgroup/cpuset;
+    cpu = /sys/fs/cgroup/cpu,cpuacct;
+    cpuacct = /sys/fs/cgroup/cpu,cpuacct;
+    memory = /sys/fs/cgroup/memory;
+    devices = /sys/fs/cgroup/devices;
+    freezer = /sys/fs/cgroup/freezer;
+    net_cls = /sys/fs/cgroup/net_cls;
+    blkio = /sys/fs/cgroup/blkio;
+    perf_event = /sys/fs/cgroup/perf_event;
+}
+
+group system {
+    cpu {
+            cpu.rt_period_us="1000000";
+            cpu.rt_runtime_us="0";
+            cpu.cfs_period_us="100000";
+            cpu.cfs_quota_us="-1";
+            cpu.shares="1024";
+    }
+    cpuacct {
+            cpuacct.usage="147354515620554";
+    }
+}
+
+group system/condor.service {
+    cpu {
+            cpu.rt_period_us="1000000";
+            cpu.rt_runtime_us="0";
+            cpu.cfs_period_us="100000";
+            cpu.cfs_quota_us="-1";
+            cpu.shares="1024";
+    }
+    cpuacct {
+            cpuacct.usage="146844720798260";
+    }
+}
+
+... * services look ~= 
+</code></pre>
+
+<hr />
+
+<h2>Analyzing your Configuration</h2>
+
+<p>One thing you will notice is that systemd creates an implied hierarchy on your
+machine by default, where each service has an equal amount of cpu.shares.  This means
+when all services are contending for resources, each &ldquo;service&rdquo; gets an equal
+share.</p>
+
+<p>Lets elaborate on shares a bit.  Say you had two service S(a) = 1, and S(b) = 3 and each service
+has multiple processes all contending for CPU.</p>
+
+<pre><code>%CPU = service.cpu.share /(sum (service shares @ level)) 
+%CPU[S(a)] = 1/4 = 25% 
+%CPU[S(b)] = 3/4 = 75% 
+</code></pre>
+
+<p>So now lets extend this idea and create a simple hierarchy
+where there are two groups, with each group having two services:</p>
+
+<pre><code>            Share   Overall%
+Group 1     1       25%
+    S(a)        1       12.5%
+    S(b)        1       12.5%
+Group 2     3       75%
+    S(c)        3       56.25%
+    S(d)        1       18.75%
+</code></pre>
+
+<p>Hopefully this should be intuitive, however it can quickly goto plaid. Therefore, it&rsquo;s
+important to have a handle on how many services you have planed for a given machine, and
+your intended hierarchy.  Thus the cost of reliable performance is extra complexity, which
+isn&rsquo;t so bad provided you&rsquo;ve done your math.</p>
+
+<hr />
+
+<h2>Altering your Configuration##</h2>
+
+<p>So now lets provision condor such that it has 50% of the CPU.  First we need to get a count
+of number of services that exist on the machine.</p>
+
+<pre><code>$ cgsnapshot -s | grep [.]service | wc -l
+30
+</code></pre>
+
+<p>As you can see from the previous example, and from the documentation, the default cpu.shares
+given to a service is 1024.  Thus if we want 50% CPU:</p>
+
+<pre><code>.50 = condor.cpu.shares/(1024*29 + condor.cpu.shares)
+512*(29) + .50*condor.cpu.shares = condor.cpu.shares
+14848 = (1-.50)*condor.cpu.shares 
+condor.cpu.shares = 14848/.50 = 29696
+</code></pre>
+
+<p>Seem nutty? GOOD! Don&rsquo;t do it this way!  Instead lets use the idea of promoting a top level
+group:</p>
+
+<pre><code>vim /usr/lib/systemd/system/condor.service
+
+[Service]
+ControlGroup=cpu:/condor
+CPUShares=1024
+</code></pre>
+
+<p>Once we exit we will need to restart the daemon and verify it worked.</p>
+
+<pre><code>systemctl daemon-reload
+systemctl restart condor.service
+</code></pre>
+
+<p>You may need to remove any legacy cruft from cgroups, or reboot, but you can compare the two configuration files.</p>
+
+<pre><code>cgsnapshot -s &gt; cgroup_snap_2.conf
+</code></pre>
+
+<p>Next you will want to submit a whole bunch of condor jobs, and try to load down the other services.
+To verify that your machine is behaving as expected you can run:</p>
+
+<pre><code>systemd-cgtop
+</code></pre>
+
+<p>In this example it can be difficult when you have 30 services to accurately test that you are
+guaranteed 50% so I would recommend that the reader promote a couple of services to the top level
+and have them compete in a controlled experiment.</p>
+
+<hr />
+
+<h2>In Summary</h2>
+
+<p>Systemd&rsquo;s integration with cgroups is a many splendid thing, and when used correctly can
+give administrators and developers another tool in which to help create SLAs in their datacenter.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Timothy St. Clair</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2013-06-14T10:00:00-05:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>14</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>10:00 am</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/computing/'>computing</a>, <a class='category' href='/blog/categories/condor/'>condor</a>, <a class='category' href='/blog/categories/grid-computing/'>grid computing</a>, <a class='category' href='/blog/categories/hadoop/'>hadoop</a>, <a class='category' href='/blog/categories/htcondor/'>htcondor</a>, <a class='category' href='/blog/categories/mrg-grid/'>mrg grid</a>, <a class='category' href='/blog/categories/red-hat/'>red hat</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://timothysc.github.io/timothysc.guthub.io/blog/2013/06/14/systemd-cgroup-sla/" data-via="timothysc" data-counturl="http://timothysc.github.io/timothysc.guthub.io/blog/2013/06/14/systemd-cgroup-sla/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/04/22/personalhadoop/" title="Previous Post: Configuring a Personal Hadoop Development Environment on Fedora 18">&laquo; Configuring a Personal Hadoop Development Environment on Fedora 18</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/09/14/hadoop-mapreduce/" title="Next Post: Bootstrapping your MapReduce 2.X programming on Fedora 20">Bootstrapping your MapReduce 2.X programming on Fedora 20 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2017/03/04/moved-to-medium/">Moved to Medium</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/08/mesos-breeze/">Getting Started With Mesos on Fedora 21 and CentOS 7</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/02/17/bdas-tachyon/">Hot Rod Hadoop With Tachyon on Fedora 21 (Rawhide)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/09/14/hadoop-mapreduce/">Bootstrapping Your MapReduce 2.X Programming on Fedora 20</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/06/14/systemd-cgroup-sla/">Leveraging Systemd Cgroup Integration to Provide SLAs on Fedora 18 & 19</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/timothysc">@timothysc</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'timothysc',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2017 - Timothy St. Clair -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'timothysc';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://timothysc.github.io/timothysc.guthub.io/blog/2013/06/14/systemd-cgroup-sla/';
+        var disqus_url = 'http://timothysc.github.io/timothysc.guthub.io/blog/2013/06/14/systemd-cgroup-sla/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

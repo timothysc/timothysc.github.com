@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Hadoop-yarn | code spelunking]]></title>
+  <link href="http://timothysc.github.io/timothysc.guthub.io/blog/categories/hadoop-yarn/atom.xml" rel="self"/>
+  <link href="http://timothysc.github.io/timothysc.guthub.io/"/>
+  <updated>2017-03-04T15:12:21-06:00</updated>
+  <id>http://timothysc.github.io/timothysc.guthub.io/</id>
+  <author>
+    <name><![CDATA[Timothy St. Clair]]></name>
+    <email><![CDATA[timothysc@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Configuring a Personal Hadoop Development Environment on Fedora 18]]></title>
+    <link href="http://timothysc.github.io/timothysc.guthub.io/blog/2013/04/22/personalhadoop/"/>
+    <updated>2013-04-22T10:00:00-05:00</updated>
+    <id>http://timothysc.github.io/timothysc.guthub.io/blog/2013/04/22/personalhadoop</id>
+    <content type="html"><![CDATA[<h2>Background</h2>
+
+<p>The following post outlines a setup and configuration of a &ldquo;personal hadoop&rdquo; development environment that is much akin to a &ldquo;personal condor&rdquo; setup.
+The primary purpose is to have a single source for configuration and logs along with a soft-link to development built binaries such that switching
+to a different build is a matter of updating a soft-link while maintaining all other data and configuration.</p>
+
+<hr />
+
+<h2>Use Cases</h2>
+
+<ul>
+<li>Comparison testing in a local sandbox without altering an existing system installation.</li>
+<li>Single source configuration and logs</li>
+<li>&hellip;</li>
+</ul>
+
+
+<hr />
+
+<h2>References</h2>
+
+<p>Inter-webz:</p>
+
+<ul>
+<li><a href="http://wiki.apache.org/hadoop/HowToSetupYourDevelopmentEnvironment">http://wiki.apache.org/hadoop/HowToSetupYourDevelopmentEnvironment</a></li>
+<li><a href="http://vichargrave.com/create-a-hadoop-build-and-development-environment-for-hadoop/">http://vichargrave.com/create-a-hadoop-build-and-development-environment-for-hadoop/</a></li>
+<li><a href="http://www.michael-noll.com/tutorials/running-hadoop-on-ubuntu-linux-single-node-cluster/">http://www.michael-noll.com/tutorials/running-hadoop-on-ubuntu-linux-single-node-cluster/</a></li>
+<li><a href="http://wiki.apache.org/hadoop/">http://wiki.apache.org/hadoop/</a></li>
+<li><a href="http://docs.hortonworks.com/CURRENT/index.htm#Appendix/Configuring_Ports/HDFS_Ports.htm">http://docs.hortonworks.com/CURRENT/index.htm#Appendix/Configuring_Ports/HDFS_Ports.htm</a></li>
+</ul>
+
+
+<p>Books:</p>
+
+<ul>
+<li><a href="http://www.amazon.com/Hadoop-The-Definitive-Guide-ebook/dp/B0082FE448/ref=dp_kinw_strp_1">Hadoop &ldquo;The Definitive Guide&rdquo;</a></li>
+</ul>
+
+
+<hr />
+
+<h2>Disclaimers</h2>
+
+<ul>
+<li>Currently this is a non-native development setup that uses the existing maven dependencies.  For details on native packaging please visit <a href="https://fedoraproject.org/wiki/Features/Hadoop">https://fedoraproject.org/wiki/Features/Hadoop</a></li>
+<li>The setup listed below is for creating &ldquo;Single-Node-Cluster&rdquo;</li>
+</ul>
+
+
+<hr />
+
+<h2>Prerequisites</h2>
+
+<h3>Configure Password-less ssh</h3>
+
+<pre><code>yum install openssh openssh-clients openssh-server
+# generate a public/private key, if you don't already have one
+ssh-keygen -t dsa -P '' -f ~/.ssh/id_dsa
+cat ~/.ssh/id_dsa.pub &gt;&gt; ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/*
+
+# testing ssh:
+ps -ef | grep sshd     # verify sshd is running
+ssh localhost          # accept the certification when prompted
+sudo passwd root       # Make sure the root has a password
+</code></pre>
+
+<h3>Install Other Build Dependencies</h3>
+
+<pre><code>yum install cmake git subversion dh-make ant autoconf automake sharutils libtool asciidoc xmlto curl protobuf-compiler gcc-c++ 
+</code></pre>
+
+<h3>Install Java And Deps</h3>
+
+<pre><code>yum install java-1.7.0-openjdk java-1.7.0-openjdk-devel java-1.7.0-openjdk-javadoc *maven*
+</code></pre>
+
+<p>append to your .bashrc file:
+    export JVM_ARGS=&ldquo;-Xmx1024m -XX:MaxPermSize=512m&rdquo;
+    export MAVEN_OPTS=&ldquo;-Xmx1024m -XX:MaxPermSize=512m&rdquo;</p>
+
+<p><strong>NOTE:</strong> These instructions have been updated to build against OpenJDK 7 on F18.  Currently (4/25/13), builds are clean but there are
+some test failures.  To get a complete list of failed tests run:</p>
+
+<pre><code> mvn install -Dmaven.test.failure.ignore=true
+</code></pre>
+
+<hr />
+
+<h2>Building and Setting up a &ldquo;personal-hadoop&rdquo;</h2>
+
+<h3>Building</h3>
+
+<pre><code>git clone git://git.apache.org/hadoop-common.git
+cd hadoop-common
+git checkout -b branch-2.0.4-alpha origin/branch-2.0.4-alpha
+mvn clean package -Pdist -DskipTests
+</code></pre>
+
+<h3>Creating Your &ldquo;personal-hadoop&rdquo; Sandbox</h3>
+
+<p>In this configuration we default to <strong>/home/tstclair</strong></p>
+
+<pre><code>cd ~
+mkdir personal-hadoop
+cd personal-hadoop
+mkdir -p conf data name logs/yarn
+ln -sf &lt;your-git-loc&gt;/hadoop-dist/target/hadoop-2.0.4-alpha home
+</code></pre>
+
+<h3>Override your environment</h3>
+
+<p>append to your .bashrc file:
+    # Hadoop env override:
+    export HADOOP_BASE_DIR=${HOME}/personal-hadoop
+    export HADOOP_LOG_DIR=${HOME}/personal-hadoop/logs
+    export HADOOP_PID_DIR=${HADOOP_BASE_DIR}
+    export HADOOP_CONF_DIR=${HOME}/personal-hadoop/conf
+    export HADOOP_COMMON_HOME=${HOME}/personal-hadoop/home
+    export HADOOP_HDFS_HOME=${HADOOP_COMMON_HOME}
+    export HADOOP_MAPRED_HOME=${HADOOP_COMMON_HOME}
+    # Yarn env override:
+    export HADOOP_YARN_HOME=${HADOOP_COMMON_HOME}
+    export YARN_LOG_DIR=${HADOOP_LOG_DIR}/yarn
+    #classpath override to search hadoop loc
+    export CLASSPATH=/usr/share/java/:${HADOOP_COMMON_HOME}/share
+    #Finally update your PATH
+    export PATH=${HADOOP_COMMON_HOME}/bin:${HADOOP_COMMON_HOME}/sbin:${HADOOP_COMMON_HOME}/libexec:${PATH}</p>
+
+<h3>Verify your setup</h3>
+
+<pre><code>source ~/.bashrc
+which hadoop    # verify it should be ${HOME}/personal-hadoop/home/bin  
+hadoop -help    # verify classpath is correct.
+</code></pre>
+
+<h3>Creating Initial Single Configuration Node Setup</h3>
+
+<p>First copy in the default configuration files:
+    cp ${HADOOP_COMMON_HOME}/etc/hadoop/* ${HADOOP_BASE_DIR}/conf</p>
+
+<p>NOTE: As your configuration testing space expands it is sometimes useful to have your conf directory to also be a softlink of configuration templates.</p>
+
+<p>Next update your <em>hdfs-site.xml</em> with the following:
+File /home/tstclair/work/spaces/timothysc.github.com/source/downloads/code/xml/hdfs-site.xml could not be found</p>
+
+<p>Append, or update, your <em>mapred-site.xml</em> with the following:
+File /home/tstclair/work/spaces/timothysc.github.com/source/downloads/code/xml/mapred-site.xml could not be found</p>
+
+<p>Finally update your <em>yarn-site.xml</em> with the following:
+File /home/tstclair/work/spaces/timothysc.github.com/source/downloads/code/xml/yarn-site.xml could not be found</p>
+
+<p><strong>NOTE:</strong> You may notice that I&rsquo;ve included default variables and their corresponding port numbers to ease default hunting.</p>
+
+<h2>Starting Your Single Node Hadoop Cluster</h2>
+
+<p>Format your namenode (only needed for the 1st setup):
+    hadoop namenode -format
+    #verify output is correct.</p>
+
+<p>Start HDFS:
+    start-dfs.sh</p>
+
+<p>open a browser to <a href="http://localhost:50070">http://localhost:50070</a> and verify you have 1 live node.</p>
+
+<p>Next start yarn:
+    start-yarn.sh</p>
+
+<p>Verify the logs show it&rsquo;s running normally.</p>
+
+<p>Finally check to see if you can run an MR application:
+    cd ${HADOOP_COMMON_HOME}/share/hadoop/mapreduce
+    hadoop jar hadoop-mapreduce-example-2.0.4-alpha.jar randomwriter out</p>
+
+<p><strong>HAPPY HACKING!!!</strong></p>
+]]></content>
+  </entry>
+  
+</feed>

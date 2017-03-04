@@ -1,0 +1,400 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Getting Started With Mesos on Fedora 21 and CentOS 7 - code spelunking</title>
+  <meta name="author" content="Timothy St. Clair">
+
+  
+  <meta name="description" content="Background For decades now, computer scientists have debated on how
+to coordinate groups of heterogeneous compute resources to solve a set of domain &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://timothysc.github.io/timothysc.guthub.io/blog/2014/09/08/mesos-breeze/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="code spelunking" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">code spelunking</a></h1>
+  
+    <h2>Q: 'Whats under this rock?' A: 'more rocks...'</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="timothysc.github.io/timothysc.guthub.io">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Getting Started With Mesos on Fedora 21 and CentOS 7</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-09-08T10:00:00-05:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>8</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>10:00 am</span></time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://timothysc.github.io/timothysc.guthub.io">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p><img class="left" src="/images/mesos_logo.png"></p>
+
+<h2>Background</h2>
+
+<p>For decades now, computer scientists have debated on how
+to coordinate groups of heterogeneous compute resources to solve a set of domain
+specific problems.  &ldquo;Scheduling&rdquo; was the catch all moniker that was used to
+describe this space.  This category of problems is <em>old</em>, therefore the
+scheduling universe is vast, and expansive.</p>
+
+<p>The most recent generation of schedulers that have emerged, strive to address the
+problem of coordinating several distributed applications across a data-center.
+The reason why I find this interesting, is that many distributed applications
+reinvent aspects of a &ldquo;scheduler&rdquo;, often without realizing the depth and breadth
+of the domain they just stepped into.  There is a great ACM article that highlights
+this point <a href="http://queue.acm.org/detail.cfm?id=2482856">&ldquo;There&rsquo;s Just No Getting around It: You&rsquo;re Building a Distributed System&rdquo;.</a></p>
+
+<p>Now-a-days, we&rsquo;re seeing a Cambrian explosion of software stacks, each
+reinventing pieces of the scheduling wheel.  That&rsquo;s all well and good, but
+there is a much easier way.  Enter Apache Mesos, a cluster manager
+that provides efficient resource isolation and sharing across distributed
+applications.</p>
+
+<p>At its core, Mesos is a <strong>focused</strong> meta-scheduler that provides <strong>primitives</strong> to express a wide
+variety of scheduling patterns and use cases. Solutions are <strong>written atop</strong> of Mesos, and are
+targeted for a particular use case.  By remaining focused at its core, Mesos
+is not architecturally encumbered by domain specific problems that often exist
+within other monolithic schedulers.</p>
+
+<hr />
+
+<h2>References</h2>
+
+<ul>
+<li><a href="http://youtu.be/YB1VW0LKzJ4">Introduction to Mesos</a></li>
+<li><a href="http://youtu.be/VQAAkO5B5Hg?list=UUeDh9omC_xMKrar2srQZiLg">John Wilkes #MesosCon Keynote</a></li>
+<li><a href="http://mesos.apache.org/documentation/latest/mesos-architecture/">Mesos Architecture</a></li>
+<li><a href="http://youtu.be/hTcZGODnyf0">Building and Running Distributed Systems using Apache Mesos</a></li>
+<li><a href="http://mesos.apache.org/documentation/latest/app-framework-development-guide/">Framework Development Guide</a></li>
+<li><a href="https://www.youtube.com/user/TwitterUniversity">Twitter University</a></li>
+</ul>
+
+
+<hr />
+
+<h2>Overview</h2>
+
+<p>I often find software first impressions are usually pretty important,
+and if I have to spend hours setting up an application, then that usually colors
+my perspective about the technology.</p>
+
+<p>Therefore, in this post I will run through how simple it is for you to get started with
+Mesos on Fedora 21 and CentOS 7.  <strong>I&rsquo;ll leave HA deployments for another post, because I want
+to outline just how simple it is to setup for &ldquo;trying it out&rdquo;.</strong></p>
+
+<hr />
+
+<h2>Prerequisites</h2>
+
+<ul>
+<li><a href="http://fedoraproject.org/en/get-fedora">Latest Fedora Machine</a> (OR) <a href="http://www.centos.org/download/">CentOS 7 box </a>with<a href="https://fedoraproject.org/wiki/EPEL"> epel installed</a></li>
+</ul>
+
+
+<h3>CentOS 7</h3>
+
+<p>Currently dependent packages have not been fully pulled into CentOS 7, or epel
+channels, but I&rsquo;ve enabled the <a href="http://pkgs.fedoraproject.org/cgit/mesos.git/tree/mesos.spec">mesos.spec</a>
+to build a bundled distribution for those who want to run on CentOS 7.  For
+convenience, rpms can be found <a href="https://tstclair.fedorapeople.org/mesos/centos7/">here</a></p>
+
+<p>But for those who want to rebuild it for themselves, you can download the <a href="http://koji.fedoraproject.org/koji/packageinfo?packageID=17691">srpm</a> and run:
+    $ mock &ndash;clean &ndash;init -r epel-7-x86_64 &ndash;rebuild mesos-0.20.0-2.f421ffd.fc21.src.rpm</p>
+
+<p>You will also need to update your docker installation to 1.X.</p>
+
+<h3>Multi-Node Cluster</h3>
+
+<ul>
+<li>If you setting up a multi-node cluster, it is recommended that you have DNS setup.</li>
+<li>You may also want to alter your firewall settings.</li>
+</ul>
+
+
+<hr />
+
+<h2>Installation</h2>
+
+<pre><code>$ sudo yum install mesos python-mesos mesos-devel mesos-java
+</code></pre>
+
+<hr />
+
+<h2>Setup</h2>
+
+<p>Make sure docker is running:
+    $ systemctl start docker</p>
+
+<h3>Single Node</h3>
+
+<p>Out of the box, the package is configured to run mesos on a single host machine.  Which is convenient for
+developers who just want to install and test their applications locally before submitting to their cluster.</p>
+
+<h3>Multi-Node</h3>
+
+<p>If you want to setup a multi-node cluster there is simply one parameter you need to set on your worker nodes <em>/etc/mesos/mesos-slave-env.sh</em> file:
+    export MESOS_master=yourmaster.yourdomain.com:5050</p>
+
+<hr />
+
+<h2>Running</h2>
+
+<h3>Master Node</h3>
+
+<pre><code>$ systemctl start mesos-master
+</code></pre>
+
+<p>and open a browser to <a href="http://localhost:5050">localhost:5050</a></p>
+
+<h3>Worker Node</h3>
+
+<pre><code>$ systemctl start mesos-slave
+</code></pre>
+
+<p>Now check the &ldquo;Slaves&rdquo; tab on the browser window to verify.</p>
+
+<h3>Smoke Test</h3>
+
+<pre><code>$ mesos execute --command="/bin/sleep 10" --master="yourmaster.yourdomain.com:5050" --name="whizbang"
+</code></pre>
+
+<p>Verify that it ran under the &ldquo;Frameworks&rdquo; tab.</p>
+
+<hr />
+
+<h3>Summary</h3>
+
+<p>Distributed systems can be a complicated and thorny road, but setting up and
+deploying them doesn&rsquo;t have to be, and <strong>it&rsquo;s a breeze with Mesos</strong>.</p>
+
+<p><strong>HaPpY HaCkInG!</strong></p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Timothy St. Clair</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2014-09-08T10:00:00-05:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>8</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>10:00 am</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/bdas/'>bdas</a>, <a class='category' href='/blog/categories/big-data/'>big data</a>, <a class='category' href='/blog/categories/computing/'>computing</a>, <a class='category' href='/blog/categories/grid/'>grid</a>, <a class='category' href='/blog/categories/grid-computing/'>grid computing</a>, <a class='category' href='/blog/categories/mesos/'>mesos</a>, <a class='category' href='/blog/categories/red-hat/'>red hat</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://timothysc.github.io/timothysc.guthub.io/blog/2014/09/08/mesos-breeze/" data-via="timothysc" data-counturl="http://timothysc.github.io/timothysc.guthub.io/blog/2014/09/08/mesos-breeze/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/02/17/bdas-tachyon/" title="Previous Post: Hot Rod Hadoop with Tachyon on Fedora 21 (Rawhide)">&laquo; Hot Rod Hadoop with Tachyon on Fedora 21 (Rawhide)</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2017/03/04/moved-to-medium/" title="Next Post: moved to medium">moved to medium &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2017/03/04/moved-to-medium/">Moved to Medium</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/08/mesos-breeze/">Getting Started With Mesos on Fedora 21 and CentOS 7</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/02/17/bdas-tachyon/">Hot Rod Hadoop With Tachyon on Fedora 21 (Rawhide)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/09/14/hadoop-mapreduce/">Bootstrapping Your MapReduce 2.X Programming on Fedora 20</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/06/14/systemd-cgroup-sla/">Leveraging Systemd Cgroup Integration to Provide SLAs on Fedora 18 & 19</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/timothysc">@timothysc</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'timothysc',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2017 - Timothy St. Clair -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'timothysc';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://timothysc.github.io/timothysc.guthub.io/blog/2014/09/08/mesos-breeze/';
+        var disqus_url = 'http://timothysc.github.io/timothysc.guthub.io/blog/2014/09/08/mesos-breeze/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

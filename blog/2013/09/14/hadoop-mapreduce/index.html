@@ -1,0 +1,358 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Bootstrapping Your MapReduce 2.X Programming on Fedora 20 - code spelunking</title>
+  <meta name="author" content="Timothy St. Clair">
+
+  
+  <meta name="description" content="Background Recently the BIG DATA SIG has added Hadoop 2.0.5 (or 2.X series) to the Fedora channels. This
+marks the first addition into any OS- &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://timothysc.github.io/timothysc.guthub.io/blog/2013/09/14/hadoop-mapreduce/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="code spelunking" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">code spelunking</a></h1>
+  
+    <h2>Q: 'Whats under this rock?' A: 'more rocks...'</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="timothysc.github.io/timothysc.guthub.io">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Bootstrapping Your MapReduce 2.X Programming on Fedora 20</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-09-14T10:00:00-05:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>14</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>10:00 am</span></time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://timothysc.github.io/timothysc.guthub.io">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p><img src="/images/ElephantCowboy.jpg" alt="Picture Courtesy of Mauro Flores jr"/></p>
+
+<h2>Background</h2>
+
+<p>Recently the BIG DATA SIG has added Hadoop 2.0.5 (or 2.X series) to the Fedora channels.  This
+marks the first addition into <em>any</em> OS-distribution which meets all the standards, and system integration
+requirements set forth by their steering committee(s).  Don&rsquo;t be fooled, bundling .jars into a package that
+looks like a .rpm or .deb != a compliant package (not even by a long shot).</p>
+
+<p>So to give some props to all the effort that it took to lasso this elephant, this post will outline how to bootstrap
+the default installation for MapReduce development.</p>
+
+<hr />
+
+<h2>References</h2>
+
+<ul>
+<li><a href="https://fedoraproject.org/wiki/Changes/Hadoop">Fedora 20 Hadoop Integration</a></li>
+<li><a href="https://fedoraproject.org/wiki/Big_data_SIG">Fedora BIG DATA SIG</a></li>
+<li><a href="http://fedoraproject.org/wiki/FedUp">Upgrading with FedUp</a></li>
+<li><a href="https://fedoraproject.org/wiki/Packaging:Guidelines?rd=Packaging/Guidelines">Fedora Packaging Guidelines</a></li>
+</ul>
+
+
+<hr />
+
+<h2>Prerequisites</h2>
+
+<ul>
+<li>Fedora 20 Machine</li>
+</ul>
+
+
+<hr />
+
+<h2>Installation and Setup (as root)</h2>
+
+<p>First you will need to install all the default hadoop packages and tools required.</p>
+
+<pre><code>yum install hadoop-common hadoop-hdfs hadoop-libhdfs hadoop-mapreduce hadoop-mapreduce-examples hadoop-yarn maven-* xmvn* 
+</code></pre>
+
+<p>Next you will need need to format your namenode:</p>
+
+<pre><code>runuser hdfs -s /bin/bash /bin/bash -c "hadoop namenode -format"
+</code></pre>
+
+<p>Once your namenode has been formatted you can now start the daemons using the default service methods:</p>
+
+<pre><code>systemctl start hadoop-namenode hadoop-datanode hadoop-nodemanager hadoop-resourcemanager
+</code></pre>
+
+<p>Finally you will want to create the default directories:</p>
+
+<pre><code>hdfs-create-dirs
+</code></pre>
+
+<hr />
+
+<h2>Setting up a Users Sandbox (as root)</h2>
+
+<pre><code>runuser hdfs -s /bin/bash /bin/bash -c "hadoop fs -mkdir /user/tstclair"
+runuser hdfs -s /bin/bash /bin/bash -c "hadoop fs -chown tstclair /user/tstclair"
+</code></pre>
+
+<hr />
+
+<h2>Running WordCount (as user)</h2>
+
+<p>For simplicity I&rsquo;ve setup a WordCount example on github that you can copy.</p>
+
+<pre><code>git clone https://github.com/timothysc/hadoop-tests.github
+</code></pre>
+
+<p>Once it has downloaded you can put the example .txt file into your user location</p>
+
+<pre><code>cd hadoop-tests/WordCount
+hadoop fs -put constitution.txt /user/tstclair
+</code></pre>
+
+<p>Now you can build WordCount against the system installed .jars.</p>
+
+<pre><code>mvn-rpmbuild package 
+</code></pre>
+
+<p>Finally you can run:</p>
+
+<pre><code>hadoop jar wordcount.jar org.myorg.WordCount /user/tstclair /user/tstclair/output 
+</code></pre>
+
+<p>Feel free to cat the part-0000 file to see the results.</p>
+
+<hr />
+
+<h2>In Summary</h2>
+
+<p>Hadoop 2.0.5 now acts like a standard package, with all the accoutrements folks have come to expect.</p>
+
+<p><em>Giddyup!</em></p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Timothy St. Clair</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2013-09-14T10:00:00-05:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>14</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>10:00 am</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/big-data/'>big data</a>, <a class='category' href='/blog/categories/computing/'>computing</a>, <a class='category' href='/blog/categories/grid-computing/'>grid computing</a>, <a class='category' href='/blog/categories/hadoop/'>hadoop</a>, <a class='category' href='/blog/categories/map-reduce/'>map reduce</a>, <a class='category' href='/blog/categories/red-hat/'>red hat</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://timothysc.github.io/timothysc.guthub.io/blog/2013/09/14/hadoop-mapreduce/" data-via="timothysc" data-counturl="http://timothysc.github.io/timothysc.guthub.io/blog/2013/09/14/hadoop-mapreduce/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/06/14/systemd-cgroup-sla/" title="Previous Post: Leveraging systemd cgroup integration to provide SLAs on Fedora 18 & 19">&laquo; Leveraging systemd cgroup integration to provide SLAs on Fedora 18 & 19</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/02/17/bdas-tachyon/" title="Next Post: Hot Rod Hadoop with Tachyon on Fedora 21 (Rawhide)">Hot Rod Hadoop with Tachyon on Fedora 21 (Rawhide) &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2017/03/04/moved-to-medium/">Moved to Medium</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/08/mesos-breeze/">Getting Started With Mesos on Fedora 21 and CentOS 7</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/02/17/bdas-tachyon/">Hot Rod Hadoop With Tachyon on Fedora 21 (Rawhide)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/09/14/hadoop-mapreduce/">Bootstrapping Your MapReduce 2.X Programming on Fedora 20</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/06/14/systemd-cgroup-sla/">Leveraging Systemd Cgroup Integration to Provide SLAs on Fedora 18 & 19</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/timothysc">@timothysc</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'timothysc',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2017 - Timothy St. Clair -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'timothysc';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://timothysc.github.io/timothysc.guthub.io/blog/2013/09/14/hadoop-mapreduce/';
+        var disqus_url = 'http://timothysc.github.io/timothysc.guthub.io/blog/2013/09/14/hadoop-mapreduce/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

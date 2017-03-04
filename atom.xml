@@ -1,129 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
 
-<!DOCTYPE html>
-<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
-<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
-<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
-<head>
-  <meta charset="utf-8">
-  <title>code spelunking</title>
-  <meta name="author" content="Timothy St. Clair">
-
-  
-  <meta name="description" content="&ldquo;Link to new location&rdquo;
-">
-  
-
-  <!-- http://t.co/dKP3o1e -->
-  <meta name="HandheldFriendly" content="True">
-  <meta name="MobileOptimized" content="320">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><![CDATA[code spelunking]]></title>
+  <link href="http://timothysc.github.io/timothysc.guthub.io/atom.xml" rel="self"/>
+  <link href="http://timothysc.github.io/timothysc.guthub.io/"/>
+  <updated>2017-03-04T15:12:21-06:00</updated>
+  <id>http://timothysc.github.io/timothysc.guthub.io/</id>
+  <author>
+    <name><![CDATA[Timothy St. Clair]]></name>
+    <email><![CDATA[timothysc@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
 
   
-  <link rel="canonical" href="http://timothysc.github.io/timothysc.guthub.io/">
-  <link href="/favicon.png" rel="icon">
-  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
-  <link href="/atom.xml" rel="alternate" title="code spelunking" type="application/atom+xml">
-  <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
-  <script src="/javascripts/octopress.js" type="text/javascript"></script>
-  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
-<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-
+  <entry>
+    <title type="html"><![CDATA[Moved to Medium]]></title>
+    <link href="http://timothysc.github.io/timothysc.guthub.io/blog/2017/03/04/moved-to-medium/"/>
+    <updated>2017-03-04T14:37:55-06:00</updated>
+    <id>http://timothysc.github.io/timothysc.guthub.io/blog/2017/03/04/moved-to-medium</id>
+    <content type="html"><![CDATA[<p><a href="http://medium.com/@timothysc">&ldquo;Link to new location&rdquo;</a></p>
+]]></content>
+  </entry>
   
-
-</head>
-
-<body   >
-  <header role="banner"><hgroup>
-  <h1><a href="/">code spelunking</a></h1>
-  
-    <h2>Q: 'Whats under this rock?' A: 'more rocks...'</h2>
-  
-</hgroup>
-
-</header>
-  <nav role="navigation"><ul class="subscription" data-subscription="rss">
-  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
-  
-</ul>
-  
-<form action="http://google.com/search" method="get">
-  <fieldset role="search">
-    <input type="hidden" name="sitesearch" value="timothysc.github.io/timothysc.guthub.io">
-    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
-  </fieldset>
-</form>
-  
-<ul class="main-navigation">
-  <li><a href="/">Blog</a></li>
-  <li><a href="/blog/archives">Archives</a></li>
-</ul>
-
-</nav>
-  <div id="main">
-    <div id="content">
-      <div class="blog-index">
-  
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2017/03/04/moved-to-medium/">Moved to Medium</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2017-03-04T14:37:55-06:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>4</span><span class='date-suffix'>th</span>, <span class='date-year'>2017</span></span> <span class='time'>2:37 pm</span></time>
-        
-           | <a href="/blog/2017/03/04/moved-to-medium/#disqus_thread"
-             data-disqus-identifier="http://timothysc.github.io/timothysc.guthub.io/blog/2017/03/04/moved-to-medium/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="http://medium.com/@timothysc">&ldquo;Link to new location&rdquo;</a></p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/09/08/mesos-breeze/">Getting Started With Mesos on Fedora 21 and CentOS 7</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-09-08T10:00:00-05:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>8</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>10:00 am</span></time>
-        
-           | <a href="/blog/2014/09/08/mesos-breeze/#disqus_thread"
-             data-disqus-identifier="http://timothysc.github.io/timothysc.guthub.io/blog/2014/09/08/mesos-breeze/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><img class="left" src="/images/mesos_logo.png"></p>
+  <entry>
+    <title type="html"><![CDATA[Getting Started With Mesos on Fedora 21 and CentOS 7]]></title>
+    <link href="http://timothysc.github.io/timothysc.guthub.io/blog/2014/09/08/mesos-breeze/"/>
+    <updated>2014-09-08T10:00:00-05:00</updated>
+    <id>http://timothysc.github.io/timothysc.guthub.io/blog/2014/09/08/mesos-breeze</id>
+    <content type="html"><![CDATA[<p><img class="left" src="http://timothysc.github.io/timothysc.guthub.io/images/mesos_logo.png"></p>
 
 <h2>Background</h2>
 
@@ -264,38 +168,15 @@ developers who just want to install and test their applications locally before s
 deploying them doesn&rsquo;t have to be, and <strong>it&rsquo;s a breeze with Mesos</strong>.</p>
 
 <p><strong>HaPpY HaCkInG!</strong></p>
-</div>
+]]></content>
+  </entry>
   
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/02/17/bdas-tachyon/">Hot Rod Hadoop With Tachyon on Fedora 21 (Rawhide)</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-02-17T10:00:00-06:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>17</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>10:00 am</span></time>
-        
-           | <a href="/blog/2014/02/17/bdas-tachyon/#disqus_thread"
-             data-disqus-identifier="http://timothysc.github.io/timothysc.guthub.io/blog/2014/02/17/bdas-tachyon/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><img class="left" src="/images/Tachyon.jpg" title="" ></p>
+  <entry>
+    <title type="html"><![CDATA[Hot Rod Hadoop With Tachyon on Fedora 21 (Rawhide)]]></title>
+    <link href="http://timothysc.github.io/timothysc.guthub.io/blog/2014/02/17/bdas-tachyon/"/>
+    <updated>2014-02-17T10:00:00-06:00</updated>
+    <id>http://timothysc.github.io/timothysc.guthub.io/blog/2014/02/17/bdas-tachyon</id>
+    <content type="html"><![CDATA[<p><img class="left" src="http://timothysc.github.io/timothysc.guthub.io/images/Tachyon.jpg" title="" ></p>
 
 <h2>Background</h2>
 
@@ -424,38 +305,15 @@ hadoop to start the TFS shim which will load and write to tachyon.  To verify yo
 in our simple example. It also enables some very interesting prospects for other back end filesystems.</p>
 
 <p>In future posts we&rsquo;ll explore more elaborate configurations using tachyon atop different frameworks and filesystems.</p>
-</div>
+]]></content>
+  </entry>
   
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/09/14/hadoop-mapreduce/">Bootstrapping Your MapReduce 2.X Programming on Fedora 20</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-09-14T10:00:00-05:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>14</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>10:00 am</span></time>
-        
-           | <a href="/blog/2013/09/14/hadoop-mapreduce/#disqus_thread"
-             data-disqus-identifier="http://timothysc.github.io/timothysc.guthub.io/blog/2013/09/14/hadoop-mapreduce/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><img src="/images/ElephantCowboy.jpg" alt="Picture Courtesy of Mauro Flores jr"/></p>
+  <entry>
+    <title type="html"><![CDATA[Bootstrapping Your MapReduce 2.X Programming on Fedora 20]]></title>
+    <link href="http://timothysc.github.io/timothysc.guthub.io/blog/2013/09/14/hadoop-mapreduce/"/>
+    <updated>2013-09-14T10:00:00-05:00</updated>
+    <id>http://timothysc.github.io/timothysc.guthub.io/blog/2013/09/14/hadoop-mapreduce</id>
+    <content type="html"><![CDATA[<p><img src="http://timothysc.github.io/timothysc.guthub.io/images/ElephantCowboy.jpg" alt="Picture Courtesy of Mauro Flores jr"/></p>
 
 <h2>Background</h2>
 
@@ -554,38 +412,15 @@ hadoop fs -put constitution.txt /user/tstclair
 <p>Hadoop 2.0.5 now acts like a standard package, with all the accoutrements folks have come to expect.</p>
 
 <p><em>Giddyup!</em></p>
-</div>
+]]></content>
+  </entry>
   
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/06/14/systemd-cgroup-sla/">Leveraging Systemd Cgroup Integration to Provide SLAs on Fedora 18 & 19</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-06-14T10:00:00-05:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>14</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>10:00 am</span></time>
-        
-           | <a href="/blog/2013/06/14/systemd-cgroup-sla/#disqus_thread"
-             data-disqus-identifier="http://timothysc.github.io/timothysc.guthub.io/blog/2013/06/14/systemd-cgroup-sla/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h2>Background</h2>
+  <entry>
+    <title type="html"><![CDATA[Leveraging Systemd Cgroup Integration to Provide SLAs on Fedora 18 & 19]]></title>
+    <link href="http://timothysc.github.io/timothysc.guthub.io/blog/2013/06/14/systemd-cgroup-sla/"/>
+    <updated>2013-06-14T10:00:00-05:00</updated>
+    <id>http://timothysc.github.io/timothysc.guthub.io/blog/2013/06/14/systemd-cgroup-sla</id>
+    <content type="html"><![CDATA[<h2>Background</h2>
 
 <p>In the not-so-distant past, enterprise data centers would create silos for specific
 services to gaurentee some metric of performance, or &ldquo;Service Level Agreement&rdquo; (SLA).  However,
@@ -781,38 +616,15 @@ and have them compete in a controlled experiment.</p>
 
 <p>Systemd&rsquo;s integration with cgroups is a many splendid thing, and when used correctly can
 give administrators and developers another tool in which to help create SLAs in their datacenter.</p>
-</div>
+]]></content>
+  </entry>
   
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/04/22/personalhadoop/">Configuring a Personal Hadoop Development Environment on Fedora 18</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-04-22T10:00:00-05:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2013</span></span> <span class='time'>10:00 am</span></time>
-        
-           | <a href="/blog/2013/04/22/personalhadoop/#disqus_thread"
-             data-disqus-identifier="http://timothysc.github.io/timothysc.guthub.io/blog/2013/04/22/personalhadoop/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h2>Background</h2>
+  <entry>
+    <title type="html"><![CDATA[Configuring a Personal Hadoop Development Environment on Fedora 18]]></title>
+    <link href="http://timothysc.github.io/timothysc.guthub.io/blog/2013/04/22/personalhadoop/"/>
+    <updated>2013-04-22T10:00:00-05:00</updated>
+    <id>http://timothysc.github.io/timothysc.guthub.io/blog/2013/04/22/personalhadoop</id>
+    <content type="html"><![CDATA[<h2>Background</h2>
 
 <p>The following post outlines a setup and configuration of a &ldquo;personal hadoop&rdquo; development environment that is much akin to a &ldquo;personal condor&rdquo; setup.
 The primary purpose is to have a single source for configuration and logs along with a soft-link to development built binaries such that switching
@@ -987,38 +799,15 @@ File /home/tstclair/work/spaces/timothysc.github.com/source/downloads/code/xml/y
     hadoop jar hadoop-mapreduce-example-2.0.4-alpha.jar randomwriter out</p>
 
 <p><strong>HAPPY HACKING!!!</strong></p>
-</div>
+]]></content>
+  </entry>
   
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/02/22/perprocess/">Per-Process Mount Namespaces</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-02-22T10:00:00-06:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2013</span></span> <span class='time'>10:00 am</span></time>
-        
-           | <a href="/blog/2013/02/22/perprocess/#disqus_thread"
-             data-disqus-identifier="http://timothysc.github.io/timothysc.guthub.io/blog/2013/02/22/perprocess/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h2>Background</h2>
+  <entry>
+    <title type="html"><![CDATA[Per-Process Mount Namespaces]]></title>
+    <link href="http://timothysc.github.io/timothysc.guthub.io/blog/2013/02/22/perprocess/"/>
+    <updated>2013-02-22T10:00:00-06:00</updated>
+    <id>http://timothysc.github.io/timothysc.guthub.io/blog/2013/02/22/perprocess</id>
+    <content type="html"><![CDATA[<h2>Background</h2>
 
 <p>&ldquo;Isolation&rdquo; in modern computing comes in many flavors and functions.  Virtual machines, c-groups, chroots/jails,
 sanboxing, and namespaces all have a role to play.  In this post we will review process mount namespace isolation, which allows a process to isolate
@@ -1190,38 +979,15 @@ int main(int argc, char ** argv)
 <li>User security</li>
 </ul>
 
-</div>
+]]></content>
+  </entry>
   
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/11/12/condor-sudo/">Override HTCondor Installation With Sudo</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2012-11-12T03:00:00-06:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>12</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>3:00 am</span></time>
-        
-           | <a href="/blog/2012/11/12/condor-sudo/#disqus_thread"
-             data-disqus-identifier="http://timothysc.github.io/timothysc.guthub.io/blog/2012/11/12/condor-sudo/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h2>Background</h2>
+  <entry>
+    <title type="html"><![CDATA[Override HTCondor Installation With Sudo]]></title>
+    <link href="http://timothysc.github.io/timothysc.guthub.io/blog/2012/11/12/condor-sudo/"/>
+    <updated>2012-11-12T03:00:00-06:00</updated>
+    <id>http://timothysc.github.io/timothysc.guthub.io/blog/2012/11/12/condor-sudo</id>
+    <content type="html"><![CDATA[<h2>Background</h2>
 
 <p>As a developer, I often find myself wanting to iterate on a build, and test in a sandboxed environment.  Isolating the environment ensures that your changes work well in a controlled experiment, but it has one fundamental flaw, it&rsquo;s not realistic.  In order to truly test a complicated system it&rsquo;s best to put it into some production environment.  This is great for testing, but it has been known to give admins a headache, because you are mucking with a known good installation.  So in this post we will set about the task of overriding an installtion of HTCondor using sudo while keeping the following requirements in mind:</p>
 
@@ -1302,38 +1068,15 @@ File /home/tstclair/work/spaces/timothysc.github.com/source/downloads/code/scrip
 <li>Playing with new shiney condor features in a existing pool.</li>
 </ul>
 
-</div>
+]]></content>
+  </entry>
   
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/09/21/condor-n-overt/">Elastic Grid With Condor and oVirt Integration</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2012-09-21T03:50:00-05:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>21</span><span class='date-suffix'>st</span>, <span class='date-year'>2012</span></span> <span class='time'>3:50 am</span></time>
-        
-           | <a href="/blog/2012/09/21/condor-n-overt/#disqus_thread"
-             data-disqus-identifier="http://timothysc.github.io/timothysc.guthub.io/blog/2012/09/21/condor-n-overt/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h2>Background</h2>
+  <entry>
+    <title type="html"><![CDATA[Elastic Grid With Condor and oVirt Integration]]></title>
+    <link href="http://timothysc.github.io/timothysc.guthub.io/blog/2012/09/21/condor-n-overt/"/>
+    <updated>2012-09-21T03:50:00-05:00</updated>
+    <id>http://timothysc.github.io/timothysc.guthub.io/blog/2012/09/21/condor-n-overt</id>
+    <content type="html"><![CDATA[<h2>Background</h2>
 
 <p>Gone are the days where an IT administrator could procure a dedicated compute cluster for a single task, so it is often the case where admins are asked to do more with existing resources where possible, especially those which are underutilized.  There are several existing solutions to oversubscription, but few that remain &ldquo;general purpose&rdquo; while adapting to the environment as the load within the cluster changes.  Enter Condor, which has been most well known for its batch processing capabilities, but can also be leveraged in many ways as an IaaS tool when coupled with oVirt.</p>
 
@@ -1381,158 +1124,16 @@ queue
 <li>Using DAGMan workflows along with a monitoring activity to spin and clean resources, based on availability</li>
 </ul>
 
-</div>
+]]></content>
+  </entry>
   
+  <entry>
+    <title type="html"><![CDATA[Dust Off Nuke It From Orbit]]></title>
+    <link href="http://timothysc.github.io/timothysc.guthub.io/blog/2012/09/12/dust-off-nuke-it-from-orbit/"/>
+    <updated>2012-09-12T04:12:00-05:00</updated>
+    <id>http://timothysc.github.io/timothysc.guthub.io/blog/2012/09/12/dust-off-nuke-it-from-orbit</id>
+    <content type="html"><![CDATA[<p>So in an effort to single source the numerous blogs, and other random bitz which have been smatter across the internet, I’ve decided to start putting all my professional efforts into one loc where other developers can easily find sources, blogs, etc.</p>
+]]></content>
+  </entry>
   
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/09/12/dust-off-nuke-it-from-orbit/">Dust Off Nuke It From Orbit</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2012-09-12T04:12:00-05:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>12</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>4:12 am</span></time>
-        
-           | <a href="/blog/2012/09/12/dust-off-nuke-it-from-orbit/#disqus_thread"
-             data-disqus-identifier="http://timothysc.github.io/timothysc.guthub.io/blog/2012/09/12/dust-off-nuke-it-from-orbit/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>So in an effort to single source the numerous blogs, and other random bitz which have been smatter across the internet, I’ve decided to start putting all my professional efforts into one loc where other developers can easily find sources, blogs, etc.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  <div class="pagination">
-    
-    <a href="/blog/archives">Blog Archives</a>
-    
-  </div>
-</div>
-<aside class="sidebar">
-  
-    <section>
-  <h1>Recent Posts</h1>
-  <ul id="recent_posts">
-    
-      <li class="post">
-        <a href="/blog/2017/03/04/moved-to-medium/">Moved to Medium</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/09/08/mesos-breeze/">Getting Started With Mesos on Fedora 21 and CentOS 7</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/02/17/bdas-tachyon/">Hot Rod Hadoop With Tachyon on Fedora 21 (Rawhide)</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/09/14/hadoop-mapreduce/">Bootstrapping Your MapReduce 2.X Programming on Fedora 20</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/06/14/systemd-cgroup-sla/">Leveraging Systemd Cgroup Integration to Provide SLAs on Fedora 18 & 19</a>
-      </li>
-    
-  </ul>
-</section>
-
-<section>
-  <h1>GitHub Repos</h1>
-  <ul id="gh_repos">
-    <li class="loading">Status updating...</li>
-  </ul>
-  
-  <a href="https://github.com/timothysc">@timothysc</a> on GitHub
-  
-  <script type="text/javascript">
-    $(document).ready(function(){
-        if (!window.jXHR){
-            var jxhr = document.createElement('script');
-            jxhr.type = 'text/javascript';
-            jxhr.src = '/javascripts/libs/jXHR.js';
-            var s = document.getElementsByTagName('script')[0];
-            s.parentNode.insertBefore(jxhr, s);
-        }
-
-        github.showRepos({
-            user: 'timothysc',
-            count: 0,
-            skip_forks: true,
-            target: '#gh_repos'
-        });
-    });
-  </script>
-  <script src="/javascripts/github.js" type="text/javascript"> </script>
-</section>
-
-
-
-
-
-  
-</aside>
-
-    </div>
-  </div>
-  <footer role="contentinfo"><p>
-  Copyright &copy; 2017 - Timothy St. Clair -
-  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
-</p>
-
-</footer>
-  
-
-<script type="text/javascript">
-      var disqus_shortname = 'timothysc';
-      
-        
-        var disqus_script = 'count.js';
-      
-    (function () {
-      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
-      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    }());
-</script>
-
-
-
-
-
-
-
-  <script type="text/javascript">
-    (function(){
-      var twitterWidgets = document.createElement('script');
-      twitterWidgets.type = 'text/javascript';
-      twitterWidgets.async = true;
-      twitterWidgets.src = '//platform.twitter.com/widgets.js';
-      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
-    })();
-  </script>
-
-
-
-
-
-</body>
-</html>
+</feed>

@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Map Reduce | code spelunking]]></title>
+  <link href="http://timothysc.github.io/timothysc.guthub.io/blog/categories/map-reduce/atom.xml" rel="self"/>
+  <link href="http://timothysc.github.io/timothysc.guthub.io/"/>
+  <updated>2017-03-04T15:12:21-06:00</updated>
+  <id>http://timothysc.github.io/timothysc.guthub.io/</id>
+  <author>
+    <name><![CDATA[Timothy St. Clair]]></name>
+    <email><![CDATA[timothysc@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Hot Rod Hadoop With Tachyon on Fedora 21 (Rawhide)]]></title>
+    <link href="http://timothysc.github.io/timothysc.guthub.io/blog/2014/02/17/bdas-tachyon/"/>
+    <updated>2014-02-17T10:00:00-06:00</updated>
+    <id>http://timothysc.github.io/timothysc.guthub.io/blog/2014/02/17/bdas-tachyon</id>
+    <content type="html"><![CDATA[<p><img class="left" src="/images/Tachyon.jpg" title="" ></p>
+
+<h2>Background</h2>
+
+<p>Within the last couple of years we&rsquo;ve witnessed a natural evolution in
+the &ldquo;Big Data&rdquo; ecosystem.  Where the common theme that you&rsquo;ve probably heard in the
+community that, &ldquo;Memory is King&rdquo;, and it is.  Therefore, if you are looking for performance
+optimization in your stack, an &ldquo;in memory&rdquo; layer should be part of
+the equation.  Enter <em>Tachyon</em>, which provides reliable file sharing across cluster
+frameworks.</p>
+
+<p>Tachyon can be used to support different framworks, as well as different filesystems.
+So to bound the scope of this post, we will outline how to setup Tachyon on a local installation
+to boost performance of map-reduce application whose data is stored in HDFS on Fedora 21.</p>
+
+<hr />
+
+<h2>Special Thanks</h2>
+
+<p>Tachyon is a recent addition to the Fedora channels, and it would not have been possible
+without the efforts of <a href="https://github.com/haoyuan">Haoyuan Li</a>, Gil Cattaneo,
+and <a href="http://chapeau.freevariable.com/">William Benton</a></p>
+
+<hr />
+
+<h2>References</h2>
+
+<ul>
+<li><a href="https://amplab.cs.berkeley.edu/software/">BDAS Stack</a></li>
+<li><a href="http://youtu.be/4lMAsd2LNEE">YouTube - Introduction to Tachyon</a></li>
+<li><a href="http://tachyon-project.org/">Tachyon project</a></li>
+<li><a href="https://fedoraproject.org/wiki/SIGs/bigdata">Fedora BIG Data SIG</a></li>
+<li><a href="http://labs.ericsson.com/blog/going-beyond-hadoop-some-insights-for-big-data-platforms">Going beyond Hadoop</a></li>
+</ul>
+
+
+<hr />
+
+<h2>Prerequisites</h2>
+
+<ul>
+<li><a href="http://fedoraproject.org/en/get-fedora">Latest Fedora Machine</a></li>
+<li><a href="http://timothysc.github.io/blog/2013/09/14/hadoop-mapreduce/">Bootstrapping Your MapReduce 2.X Programming on Fedora 20</a></li>
+</ul>
+
+
+<hr />
+
+<h2>Installation and Setup</h2>
+
+<p>Prior to installing Tachyon please ensure that you have setup your hadoop installation
+as outlined in the pre-reqs.</p>
+
+<p>First you will need to install the tachyon package:</p>
+
+<pre><code>$ sudo yum install amplab-tachyon
+</code></pre>
+
+<p>Now you will need to update /etc/hadoop/core-site.xml configuration for hadoop to
+enable map-reduce to take advantage of tachyon, by appending the following snippet:</p>
+
+<pre><code>&lt;property&gt;
+  &lt;name&gt;fs.tachyon.impl&lt;/name&gt;
+  &lt;value&gt;tachyon.hadoop.TFS&lt;/value&gt;
+&lt;/property&gt;
+</code></pre>
+
+<p>Now that all the plumbing is in place you can restart hadoop</p>
+
+<pre><code>systemctl restart hadoop-namenode hadoop-datanode hadoop-nodemanager hadoop-resourcemanager
+</code></pre>
+
+<p>Next, make certain your local HDFS instance is up and running, then
+you will need to perform a tachyon format.</p>
+
+<pre><code>$ sudo runuser hdfs -s /bin/bash /bin/bash -c "tachyon.sh format"
+&gt; Formatting Tachyon @ localhost
+&gt; Deleting /var/lib/tachyon/journal/
+&gt; Formatting hdfs://localhost:8020/tachyon/data
+&gt; Formatting hdfs://localhost:8020/tachyon/workers
+</code></pre>
+
+<hr />
+
+<h3>Initialization</h3>
+
+<p>Prior to running the daemons you will need to mount the in-memory filesystem.</p>
+
+<pre><code>$ sudo tachyon-mount.sh SudoMount
+</code></pre>
+
+<p>Now you can start the daemons.</p>
+
+<pre><code>$ sudo systemctl start tachyon-master tachyon-slave
+</code></pre>
+
+<p>For completeness you can inspect the logs which are located in the standard system location</p>
+
+<pre><code>$ ls -la /var/log/tachyon
+</code></pre>
+
+<hr />
+
+<h3>Operation</h3>
+
+<p>Once you&rsquo;ve verified tachyon is up and running, you can run a simple mapreduce application
+as seen below:</p>
+
+<pre><code>$ hadoop jar /usr/share/java/hadoop/hadoop-mapreduce-examples.jar wordcount
+  tachyon://localhost:19998/user/tstclair/input/constitution.txt
+  tachyon://localhost:19998/test1
+</code></pre>
+
+<p>You&rsquo;ll notice tha tachyon prefix attached to the input and output locations.  This enables
+hadoop to start the TFS shim which will load and write to tachyon.  To verify you can run the following:</p>
+
+<pre><code>$ sudo runuser hdfs -s /bin/bash /bin/bash -c "tachyon.sh tfs ls /test1"
+&gt; 16.65 KB  02-17-2014 15:41:11:849  In Memory      /test1/part-r-00000
+&gt; 0.00 B    02-17-2014 15:41:12:366  In Memory      /test1/_SUCCESS
+</code></pre>
+
+<p>If you&rsquo;re interested in grok'ing further you can probably find the part file under /mnt/ramdisk.</p>
+
+<h2>Summary</h2>
+
+<p>Tachyon provides reliable in memory file sharing across cluster frameworks, as we have seen
+in our simple example. It also enables some very interesting prospects for other back end filesystems.</p>
+
+<p>In future posts we&rsquo;ll explore more elaborate configurations using tachyon atop different frameworks and filesystems.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Bootstrapping Your MapReduce 2.X Programming on Fedora 20]]></title>
+    <link href="http://timothysc.github.io/timothysc.guthub.io/blog/2013/09/14/hadoop-mapreduce/"/>
+    <updated>2013-09-14T10:00:00-05:00</updated>
+    <id>http://timothysc.github.io/timothysc.guthub.io/blog/2013/09/14/hadoop-mapreduce</id>
+    <content type="html"><![CDATA[<p><img src="/images/ElephantCowboy.jpg" alt="Picture Courtesy of Mauro Flores jr"/></p>
+
+<h2>Background</h2>
+
+<p>Recently the BIG DATA SIG has added Hadoop 2.0.5 (or 2.X series) to the Fedora channels.  This
+marks the first addition into <em>any</em> OS-distribution which meets all the standards, and system integration
+requirements set forth by their steering committee(s).  Don&rsquo;t be fooled, bundling .jars into a package that
+looks like a .rpm or .deb != a compliant package (not even by a long shot).</p>
+
+<p>So to give some props to all the effort that it took to lasso this elephant, this post will outline how to bootstrap
+the default installation for MapReduce development.</p>
+
+<hr />
+
+<h2>References</h2>
+
+<ul>
+<li><a href="https://fedoraproject.org/wiki/Changes/Hadoop">Fedora 20 Hadoop Integration</a></li>
+<li><a href="https://fedoraproject.org/wiki/Big_data_SIG">Fedora BIG DATA SIG</a></li>
+<li><a href="http://fedoraproject.org/wiki/FedUp">Upgrading with FedUp</a></li>
+<li><a href="https://fedoraproject.org/wiki/Packaging:Guidelines?rd=Packaging/Guidelines">Fedora Packaging Guidelines</a></li>
+</ul>
+
+
+<hr />
+
+<h2>Prerequisites</h2>
+
+<ul>
+<li>Fedora 20 Machine</li>
+</ul>
+
+
+<hr />
+
+<h2>Installation and Setup (as root)</h2>
+
+<p>First you will need to install all the default hadoop packages and tools required.</p>
+
+<pre><code>yum install hadoop-common hadoop-hdfs hadoop-libhdfs hadoop-mapreduce hadoop-mapreduce-examples hadoop-yarn maven-* xmvn* 
+</code></pre>
+
+<p>Next you will need need to format your namenode:</p>
+
+<pre><code>runuser hdfs -s /bin/bash /bin/bash -c "hadoop namenode -format"
+</code></pre>
+
+<p>Once your namenode has been formatted you can now start the daemons using the default service methods:</p>
+
+<pre><code>systemctl start hadoop-namenode hadoop-datanode hadoop-nodemanager hadoop-resourcemanager
+</code></pre>
+
+<p>Finally you will want to create the default directories:</p>
+
+<pre><code>hdfs-create-dirs
+</code></pre>
+
+<hr />
+
+<h2>Setting up a Users Sandbox (as root)</h2>
+
+<pre><code>runuser hdfs -s /bin/bash /bin/bash -c "hadoop fs -mkdir /user/tstclair"
+runuser hdfs -s /bin/bash /bin/bash -c "hadoop fs -chown tstclair /user/tstclair"
+</code></pre>
+
+<hr />
+
+<h2>Running WordCount (as user)</h2>
+
+<p>For simplicity I&rsquo;ve setup a WordCount example on github that you can copy.</p>
+
+<pre><code>git clone https://github.com/timothysc/hadoop-tests.github
+</code></pre>
+
+<p>Once it has downloaded you can put the example .txt file into your user location</p>
+
+<pre><code>cd hadoop-tests/WordCount
+hadoop fs -put constitution.txt /user/tstclair
+</code></pre>
+
+<p>Now you can build WordCount against the system installed .jars.</p>
+
+<pre><code>mvn-rpmbuild package 
+</code></pre>
+
+<p>Finally you can run:</p>
+
+<pre><code>hadoop jar wordcount.jar org.myorg.WordCount /user/tstclair /user/tstclair/output 
+</code></pre>
+
+<p>Feel free to cat the part-0000 file to see the results.</p>
+
+<hr />
+
+<h2>In Summary</h2>
+
+<p>Hadoop 2.0.5 now acts like a standard package, with all the accoutrements folks have come to expect.</p>
+
+<p><em>Giddyup!</em></p>
+]]></content>
+  </entry>
+  
+</feed>

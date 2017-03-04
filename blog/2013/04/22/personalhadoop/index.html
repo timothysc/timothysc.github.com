@@ -1,0 +1,433 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Configuring a Personal Hadoop Development Environment on Fedora 18 - code spelunking</title>
+  <meta name="author" content="Timothy St. Clair">
+
+  
+  <meta name="description" content="Background The following post outlines a setup and configuration of a &ldquo;personal hadoop&rdquo; development environment that is much akin to a & &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://timothysc.github.io/timothysc.guthub.io/blog/2013/04/22/personalhadoop/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="code spelunking" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">code spelunking</a></h1>
+  
+    <h2>Q: 'Whats under this rock?' A: 'more rocks...'</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="timothysc.github.io/timothysc.guthub.io">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Configuring a Personal Hadoop Development Environment on Fedora 18</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-04-22T10:00:00-05:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2013</span></span> <span class='time'>10:00 am</span></time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://timothysc.github.io/timothysc.guthub.io">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h2>Background</h2>
+
+<p>The following post outlines a setup and configuration of a &ldquo;personal hadoop&rdquo; development environment that is much akin to a &ldquo;personal condor&rdquo; setup.
+The primary purpose is to have a single source for configuration and logs along with a soft-link to development built binaries such that switching
+to a different build is a matter of updating a soft-link while maintaining all other data and configuration.</p>
+
+<hr />
+
+<h2>Use Cases</h2>
+
+<ul>
+<li>Comparison testing in a local sandbox without altering an existing system installation.</li>
+<li>Single source configuration and logs</li>
+<li>&hellip;</li>
+</ul>
+
+
+<hr />
+
+<h2>References</h2>
+
+<p>Inter-webz:</p>
+
+<ul>
+<li><a href="http://wiki.apache.org/hadoop/HowToSetupYourDevelopmentEnvironment">http://wiki.apache.org/hadoop/HowToSetupYourDevelopmentEnvironment</a></li>
+<li><a href="http://vichargrave.com/create-a-hadoop-build-and-development-environment-for-hadoop/">http://vichargrave.com/create-a-hadoop-build-and-development-environment-for-hadoop/</a></li>
+<li><a href="http://www.michael-noll.com/tutorials/running-hadoop-on-ubuntu-linux-single-node-cluster/">http://www.michael-noll.com/tutorials/running-hadoop-on-ubuntu-linux-single-node-cluster/</a></li>
+<li><a href="http://wiki.apache.org/hadoop/">http://wiki.apache.org/hadoop/</a></li>
+<li><a href="http://docs.hortonworks.com/CURRENT/index.htm#Appendix/Configuring_Ports/HDFS_Ports.htm">http://docs.hortonworks.com/CURRENT/index.htm#Appendix/Configuring_Ports/HDFS_Ports.htm</a></li>
+</ul>
+
+
+<p>Books:</p>
+
+<ul>
+<li><a href="http://www.amazon.com/Hadoop-The-Definitive-Guide-ebook/dp/B0082FE448/ref=dp_kinw_strp_1">Hadoop &ldquo;The Definitive Guide&rdquo;</a></li>
+</ul>
+
+
+<hr />
+
+<h2>Disclaimers</h2>
+
+<ul>
+<li>Currently this is a non-native development setup that uses the existing maven dependencies.  For details on native packaging please visit <a href="https://fedoraproject.org/wiki/Features/Hadoop">https://fedoraproject.org/wiki/Features/Hadoop</a></li>
+<li>The setup listed below is for creating &ldquo;Single-Node-Cluster&rdquo;</li>
+</ul>
+
+
+<hr />
+
+<h2>Prerequisites</h2>
+
+<h3>Configure Password-less ssh</h3>
+
+<pre><code>yum install openssh openssh-clients openssh-server
+# generate a public/private key, if you don't already have one
+ssh-keygen -t dsa -P '' -f ~/.ssh/id_dsa
+cat ~/.ssh/id_dsa.pub &gt;&gt; ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/*
+
+# testing ssh:
+ps -ef | grep sshd     # verify sshd is running
+ssh localhost          # accept the certification when prompted
+sudo passwd root       # Make sure the root has a password
+</code></pre>
+
+<h3>Install Other Build Dependencies</h3>
+
+<pre><code>yum install cmake git subversion dh-make ant autoconf automake sharutils libtool asciidoc xmlto curl protobuf-compiler gcc-c++ 
+</code></pre>
+
+<h3>Install Java And Deps</h3>
+
+<pre><code>yum install java-1.7.0-openjdk java-1.7.0-openjdk-devel java-1.7.0-openjdk-javadoc *maven*
+</code></pre>
+
+<p>append to your .bashrc file:
+    export JVM_ARGS=&ldquo;-Xmx1024m -XX:MaxPermSize=512m&rdquo;
+    export MAVEN_OPTS=&ldquo;-Xmx1024m -XX:MaxPermSize=512m&rdquo;</p>
+
+<p><strong>NOTE:</strong> These instructions have been updated to build against OpenJDK 7 on F18.  Currently (4/25/13), builds are clean but there are
+some test failures.  To get a complete list of failed tests run:</p>
+
+<pre><code> mvn install -Dmaven.test.failure.ignore=true
+</code></pre>
+
+<hr />
+
+<h2>Building and Setting up a &ldquo;personal-hadoop&rdquo;</h2>
+
+<h3>Building</h3>
+
+<pre><code>git clone git://git.apache.org/hadoop-common.git
+cd hadoop-common
+git checkout -b branch-2.0.4-alpha origin/branch-2.0.4-alpha
+mvn clean package -Pdist -DskipTests
+</code></pre>
+
+<h3>Creating Your &ldquo;personal-hadoop&rdquo; Sandbox</h3>
+
+<p>In this configuration we default to <strong>/home/tstclair</strong></p>
+
+<pre><code>cd ~
+mkdir personal-hadoop
+cd personal-hadoop
+mkdir -p conf data name logs/yarn
+ln -sf &lt;your-git-loc&gt;/hadoop-dist/target/hadoop-2.0.4-alpha home
+</code></pre>
+
+<h3>Override your environment</h3>
+
+<p>append to your .bashrc file:
+    # Hadoop env override:
+    export HADOOP_BASE_DIR=${HOME}/personal-hadoop
+    export HADOOP_LOG_DIR=${HOME}/personal-hadoop/logs
+    export HADOOP_PID_DIR=${HADOOP_BASE_DIR}
+    export HADOOP_CONF_DIR=${HOME}/personal-hadoop/conf
+    export HADOOP_COMMON_HOME=${HOME}/personal-hadoop/home
+    export HADOOP_HDFS_HOME=${HADOOP_COMMON_HOME}
+    export HADOOP_MAPRED_HOME=${HADOOP_COMMON_HOME}
+    # Yarn env override:
+    export HADOOP_YARN_HOME=${HADOOP_COMMON_HOME}
+    export YARN_LOG_DIR=${HADOOP_LOG_DIR}/yarn
+    #classpath override to search hadoop loc
+    export CLASSPATH=/usr/share/java/:${HADOOP_COMMON_HOME}/share
+    #Finally update your PATH
+    export PATH=${HADOOP_COMMON_HOME}/bin:${HADOOP_COMMON_HOME}/sbin:${HADOOP_COMMON_HOME}/libexec:${PATH}</p>
+
+<h3>Verify your setup</h3>
+
+<pre><code>source ~/.bashrc
+which hadoop    # verify it should be ${HOME}/personal-hadoop/home/bin  
+hadoop -help    # verify classpath is correct.
+</code></pre>
+
+<h3>Creating Initial Single Configuration Node Setup</h3>
+
+<p>First copy in the default configuration files:
+    cp ${HADOOP_COMMON_HOME}/etc/hadoop/* ${HADOOP_BASE_DIR}/conf</p>
+
+<p>NOTE: As your configuration testing space expands it is sometimes useful to have your conf directory to also be a softlink of configuration templates.</p>
+
+<p>Next update your <em>hdfs-site.xml</em> with the following:
+File /home/tstclair/work/spaces/timothysc.github.com/source/downloads/code/xml/hdfs-site.xml could not be found</p>
+
+<p>Append, or update, your <em>mapred-site.xml</em> with the following:
+File /home/tstclair/work/spaces/timothysc.github.com/source/downloads/code/xml/mapred-site.xml could not be found</p>
+
+<p>Finally update your <em>yarn-site.xml</em> with the following:
+File /home/tstclair/work/spaces/timothysc.github.com/source/downloads/code/xml/yarn-site.xml could not be found</p>
+
+<p><strong>NOTE:</strong> You may notice that I&rsquo;ve included default variables and their corresponding port numbers to ease default hunting.</p>
+
+<h2>Starting Your Single Node Hadoop Cluster</h2>
+
+<p>Format your namenode (only needed for the 1st setup):
+    hadoop namenode -format
+    #verify output is correct.</p>
+
+<p>Start HDFS:
+    start-dfs.sh</p>
+
+<p>open a browser to <a href="http://localhost:50070">http://localhost:50070</a> and verify you have 1 live node.</p>
+
+<p>Next start yarn:
+    start-yarn.sh</p>
+
+<p>Verify the logs show it&rsquo;s running normally.</p>
+
+<p>Finally check to see if you can run an MR application:
+    cd ${HADOOP_COMMON_HOME}/share/hadoop/mapreduce
+    hadoop jar hadoop-mapreduce-example-2.0.4-alpha.jar randomwriter out</p>
+
+<p><strong>HAPPY HACKING!!!</strong></p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Timothy St. Clair</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2013-04-22T10:00:00-05:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2013</span></span> <span class='time'>10:00 am</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/computing/'>computing</a>, <a class='category' href='/blog/categories/condor/'>condor</a>, <a class='category' href='/blog/categories/grid-computing/'>grid computing</a>, <a class='category' href='/blog/categories/hadoop/'>hadoop</a>, <a class='category' href='/blog/categories/hadoop-yarn/'>hadoop-yarn</a>, <a class='category' href='/blog/categories/htcondor/'>htcondor</a>, <a class='category' href='/blog/categories/mrg-grid/'>mrg grid</a>, <a class='category' href='/blog/categories/red-hat/'>red hat</a>, <a class='category' href='/blog/categories/yarn/'>yarn</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://timothysc.github.io/timothysc.guthub.io/blog/2013/04/22/personalhadoop/" data-via="timothysc" data-counturl="http://timothysc.github.io/timothysc.guthub.io/blog/2013/04/22/personalhadoop/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/02/22/perprocess/" title="Previous Post: Per-Process Mount Namespaces">&laquo; Per-Process Mount Namespaces</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/06/14/systemd-cgroup-sla/" title="Next Post: Leveraging systemd cgroup integration to provide SLAs on Fedora 18 & 19">Leveraging systemd cgroup integration to provide SLAs on Fedora 18 & 19 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2017/03/04/moved-to-medium/">Moved to Medium</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/08/mesos-breeze/">Getting Started With Mesos on Fedora 21 and CentOS 7</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/02/17/bdas-tachyon/">Hot Rod Hadoop With Tachyon on Fedora 21 (Rawhide)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/09/14/hadoop-mapreduce/">Bootstrapping Your MapReduce 2.X Programming on Fedora 20</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/06/14/systemd-cgroup-sla/">Leveraging Systemd Cgroup Integration to Provide SLAs on Fedora 18 & 19</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/timothysc">@timothysc</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'timothysc',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2017 - Timothy St. Clair -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'timothysc';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://timothysc.github.io/timothysc.guthub.io/blog/2013/04/22/personalhadoop/';
+        var disqus_url = 'http://timothysc.github.io/timothysc.guthub.io/blog/2013/04/22/personalhadoop/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

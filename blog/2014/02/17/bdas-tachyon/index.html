@@ -1,0 +1,388 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Hot Rod Hadoop With Tachyon on Fedora 21 (Rawhide) - code spelunking</title>
+  <meta name="author" content="Timothy St. Clair">
+
+  
+  <meta name="description" content="Background Within the last couple of years we&rsquo;ve witnessed a natural evolution in
+the &ldquo;Big Data&rdquo; ecosystem. Where the common theme &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://timothysc.github.io/timothysc.guthub.io/blog/2014/02/17/bdas-tachyon/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="code spelunking" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">code spelunking</a></h1>
+  
+    <h2>Q: 'Whats under this rock?' A: 'more rocks...'</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="timothysc.github.io/timothysc.guthub.io">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Hot Rod Hadoop With Tachyon on Fedora 21 (Rawhide)</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-02-17T10:00:00-06:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>17</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>10:00 am</span></time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://timothysc.github.io/timothysc.guthub.io">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p><img class="left" src="/images/Tachyon.jpg" title="" ></p>
+
+<h2>Background</h2>
+
+<p>Within the last couple of years we&rsquo;ve witnessed a natural evolution in
+the &ldquo;Big Data&rdquo; ecosystem.  Where the common theme that you&rsquo;ve probably heard in the
+community that, &ldquo;Memory is King&rdquo;, and it is.  Therefore, if you are looking for performance
+optimization in your stack, an &ldquo;in memory&rdquo; layer should be part of
+the equation.  Enter <em>Tachyon</em>, which provides reliable file sharing across cluster
+frameworks.</p>
+
+<p>Tachyon can be used to support different framworks, as well as different filesystems.
+So to bound the scope of this post, we will outline how to setup Tachyon on a local installation
+to boost performance of map-reduce application whose data is stored in HDFS on Fedora 21.</p>
+
+<hr />
+
+<h2>Special Thanks</h2>
+
+<p>Tachyon is a recent addition to the Fedora channels, and it would not have been possible
+without the efforts of <a href="https://github.com/haoyuan">Haoyuan Li</a>, Gil Cattaneo,
+and <a href="http://chapeau.freevariable.com/">William Benton</a></p>
+
+<hr />
+
+<h2>References</h2>
+
+<ul>
+<li><a href="https://amplab.cs.berkeley.edu/software/">BDAS Stack</a></li>
+<li><a href="http://youtu.be/4lMAsd2LNEE">YouTube - Introduction to Tachyon</a></li>
+<li><a href="http://tachyon-project.org/">Tachyon project</a></li>
+<li><a href="https://fedoraproject.org/wiki/SIGs/bigdata">Fedora BIG Data SIG</a></li>
+<li><a href="http://labs.ericsson.com/blog/going-beyond-hadoop-some-insights-for-big-data-platforms">Going beyond Hadoop</a></li>
+</ul>
+
+
+<hr />
+
+<h2>Prerequisites</h2>
+
+<ul>
+<li><a href="http://fedoraproject.org/en/get-fedora">Latest Fedora Machine</a></li>
+<li><a href="http://timothysc.github.io/blog/2013/09/14/hadoop-mapreduce/">Bootstrapping Your MapReduce 2.X Programming on Fedora 20</a></li>
+</ul>
+
+
+<hr />
+
+<h2>Installation and Setup</h2>
+
+<p>Prior to installing Tachyon please ensure that you have setup your hadoop installation
+as outlined in the pre-reqs.</p>
+
+<p>First you will need to install the tachyon package:</p>
+
+<pre><code>$ sudo yum install amplab-tachyon
+</code></pre>
+
+<p>Now you will need to update /etc/hadoop/core-site.xml configuration for hadoop to
+enable map-reduce to take advantage of tachyon, by appending the following snippet:</p>
+
+<pre><code>&lt;property&gt;
+  &lt;name&gt;fs.tachyon.impl&lt;/name&gt;
+  &lt;value&gt;tachyon.hadoop.TFS&lt;/value&gt;
+&lt;/property&gt;
+</code></pre>
+
+<p>Now that all the plumbing is in place you can restart hadoop</p>
+
+<pre><code>systemctl restart hadoop-namenode hadoop-datanode hadoop-nodemanager hadoop-resourcemanager
+</code></pre>
+
+<p>Next, make certain your local HDFS instance is up and running, then
+you will need to perform a tachyon format.</p>
+
+<pre><code>$ sudo runuser hdfs -s /bin/bash /bin/bash -c "tachyon.sh format"
+&gt; Formatting Tachyon @ localhost
+&gt; Deleting /var/lib/tachyon/journal/
+&gt; Formatting hdfs://localhost:8020/tachyon/data
+&gt; Formatting hdfs://localhost:8020/tachyon/workers
+</code></pre>
+
+<hr />
+
+<h3>Initialization</h3>
+
+<p>Prior to running the daemons you will need to mount the in-memory filesystem.</p>
+
+<pre><code>$ sudo tachyon-mount.sh SudoMount
+</code></pre>
+
+<p>Now you can start the daemons.</p>
+
+<pre><code>$ sudo systemctl start tachyon-master tachyon-slave
+</code></pre>
+
+<p>For completeness you can inspect the logs which are located in the standard system location</p>
+
+<pre><code>$ ls -la /var/log/tachyon
+</code></pre>
+
+<hr />
+
+<h3>Operation</h3>
+
+<p>Once you&rsquo;ve verified tachyon is up and running, you can run a simple mapreduce application
+as seen below:</p>
+
+<pre><code>$ hadoop jar /usr/share/java/hadoop/hadoop-mapreduce-examples.jar wordcount
+  tachyon://localhost:19998/user/tstclair/input/constitution.txt
+  tachyon://localhost:19998/test1
+</code></pre>
+
+<p>You&rsquo;ll notice tha tachyon prefix attached to the input and output locations.  This enables
+hadoop to start the TFS shim which will load and write to tachyon.  To verify you can run the following:</p>
+
+<pre><code>$ sudo runuser hdfs -s /bin/bash /bin/bash -c "tachyon.sh tfs ls /test1"
+&gt; 16.65 KB  02-17-2014 15:41:11:849  In Memory      /test1/part-r-00000
+&gt; 0.00 B    02-17-2014 15:41:12:366  In Memory      /test1/_SUCCESS
+</code></pre>
+
+<p>If you&rsquo;re interested in grok'ing further you can probably find the part file under /mnt/ramdisk.</p>
+
+<h2>Summary</h2>
+
+<p>Tachyon provides reliable in memory file sharing across cluster frameworks, as we have seen
+in our simple example. It also enables some very interesting prospects for other back end filesystems.</p>
+
+<p>In future posts we&rsquo;ll explore more elaborate configurations using tachyon atop different frameworks and filesystems.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Timothy St. Clair</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2014-02-17T10:00:00-06:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>17</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>10:00 am</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/bdas/'>bdas</a>, <a class='category' href='/blog/categories/big-data/'>big data</a>, <a class='category' href='/blog/categories/computing/'>computing</a>, <a class='category' href='/blog/categories/grid-computing/'>grid computing</a>, <a class='category' href='/blog/categories/hadoop/'>hadoop</a>, <a class='category' href='/blog/categories/map-reduce/'>map reduce</a>, <a class='category' href='/blog/categories/red-hat/'>red hat</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://timothysc.github.io/timothysc.guthub.io/blog/2014/02/17/bdas-tachyon/" data-via="timothysc" data-counturl="http://timothysc.github.io/timothysc.guthub.io/blog/2014/02/17/bdas-tachyon/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/09/14/hadoop-mapreduce/" title="Previous Post: Bootstrapping your MapReduce 2.X programming on Fedora 20">&laquo; Bootstrapping your MapReduce 2.X programming on Fedora 20</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/09/08/mesos-breeze/" title="Next Post: Getting Started with Mesos on Fedora 21 and CentOS 7">Getting Started with Mesos on Fedora 21 and CentOS 7 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2017/03/04/moved-to-medium/">Moved to Medium</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/08/mesos-breeze/">Getting Started With Mesos on Fedora 21 and CentOS 7</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/02/17/bdas-tachyon/">Hot Rod Hadoop With Tachyon on Fedora 21 (Rawhide)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/09/14/hadoop-mapreduce/">Bootstrapping Your MapReduce 2.X Programming on Fedora 20</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/06/14/systemd-cgroup-sla/">Leveraging Systemd Cgroup Integration to Provide SLAs on Fedora 18 & 19</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/timothysc">@timothysc</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'timothysc',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2017 - Timothy St. Clair -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'timothysc';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://timothysc.github.io/timothysc.guthub.io/blog/2014/02/17/bdas-tachyon/';
+        var disqus_url = 'http://timothysc.github.io/timothysc.guthub.io/blog/2014/02/17/bdas-tachyon/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

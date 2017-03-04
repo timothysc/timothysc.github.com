@@ -1,0 +1,339 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Override HTCondor Installation With Sudo - code spelunking</title>
+  <meta name="author" content="Timothy St. Clair">
+
+  
+  <meta name="description" content="Background As a developer, I often find myself wanting to iterate on a build, and test in a sandboxed environment. Isolating the environment ensures &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://timothysc.github.io/timothysc.guthub.io/blog/2012/11/12/condor-sudo/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="code spelunking" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">code spelunking</a></h1>
+  
+    <h2>Q: 'Whats under this rock?' A: 'more rocks...'</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="timothysc.github.io/timothysc.guthub.io">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Override HTCondor Installation With Sudo</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-11-12T03:00:00-06:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>12</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>3:00 am</span></time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://timothysc.github.io/timothysc.guthub.io">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h2>Background</h2>
+
+<p>As a developer, I often find myself wanting to iterate on a build, and test in a sandboxed environment.  Isolating the environment ensures that your changes work well in a controlled experiment, but it has one fundamental flaw, it&rsquo;s not realistic.  In order to truly test a complicated system it&rsquo;s best to put it into some production environment.  This is great for testing, but it has been known to give admins a headache, because you are mucking with a known good installation.  So in this post we will set about the task of overriding an installtion of HTCondor using sudo while keeping the following requirements in mind:</p>
+
+<h3>Requirements</h3>
+
+<ul>
+<li>Don&rsquo;t alter the existing system installation (binaries or config files).</li>
+<li>Be able to reference any custom developer build.</li>
+<li>Be able to easily change back to the known good installation with little/no effort.</li>
+</ul>
+
+
+<hr />
+
+<h2>Getting Started</h2>
+
+<p>Before you begin you will need a machine which already has HTCondor installed on it, and all the necessary development tools in order to create a custom build.  You will also need to obtain the <a href="https://github.com/htcondor/htcondor">source tree for HTCondor</a>, and follow the instructions on <a href="https://condor-wiki.cs.wisc.edu/index.cgi/wiki?p=BuildModernization">how to build condor.</a>  I typically &lsquo;alias cmake&rsquo; in my environment with all the clever developer magic to make a sandbox&rsquo;d installation out of the gate.</p>
+
+<pre><code>alias cmake='cmake -DCMAKE_INSTALL_PREFIX:PATH=${PWD}/release_dir \
+-DBUILDID:STRING=tstclair_local -DWANT_CONTRIB:BOOL=TRUE \
+-DWANT_FULL_DEPLOYMENT:BOOL=FALSE -D_VERBOSE:BOOL=TRUE \
+-DWANT_MAN_PAGES:BOOL=TRUE -D_DEBUG:BOOL=TRUE'
+
+cmake . &amp;&amp; make install 
+</code></pre>
+
+<p>Lastly you will need an account which has sudo privs on the machine where you will be tinkering.</p>
+
+<hr />
+
+<h2>Setting up a Sandbox</h2>
+
+<p>Once you&rsquo;ve created build for the target machine that you would like to test, you will need to create a sandbox location which is also accessible by the &lsquo;condor&rsquo; user, I typically use /tmp.</p>
+
+<pre><code>mkdir /tmp/mycondor
+cp -r release_dir /tmp/mycondor 
+</code></pre>
+
+<p>Next you will want to drop 3 files into your sandbox directory.</p>
+
+<p>The first file is a simple bash script which kicks off your sandbox&rsquo;d condor ensuring that all the correct environment variables are passed through sudo so that HTCondor can properly execute out of your sandbox.<br/>
+File /home/tstclair/work/spaces/timothysc.github.com/source/downloads/code/scripts/sudo_condor.sh could not be found
+If you are testing your client tools, you will also want to mundge your PATH in your testing shell as seen in the script.</p>
+
+<p>The next file is a script which acts as a piped config script.  In HTCondor, there is a feature which allows admins to generate/mundge the parameters which can be passed in on intialization and reconfig.  It turns out this is useful in meeting our previously mentioned requirement of not mucking with the existing configs while still being able to customize as seen below:
+File /home/tstclair/work/spaces/timothysc.github.com/source/downloads/code/scripts/override.sh could not be found</p>
+
+<p>The final file is an optional condor_config.local file, which you can create.  This file is appended to the end of the existing config and allows the developers, or admins, to lay out any configuration that they desire or even override the system to behave the way they would like.</p>
+
+<p>Finally you will need to adjust the access permission so that the &lsquo;condor&rsquo; user can access the shared location.</p>
+
+<pre><code>sudo chown -R "root:root" /tmp/mycondor
+</code></pre>
+
+<p>Now lets rock N' roll!</p>
+
+<pre><code>cd /tmp/mycondor
+./sudo_condor.sh
+</code></pre>
+
+<p>You&rsquo;ve now taken over a existing machine in your pool using all the configuration settings that were there, while still allowing your own config magic.  You should take heed though, if you are testing any changes to condors internal files, you could possibly corrupt what is there.  To avoid this, you can override the SPOOL and EXECUTE directories in your condor_config.local file.</p>
+
+<hr />
+
+<h2>Verify its correct</h2>
+
+<p>The easiest way to verify correctness is to check that the preamble in the logs(/var/log/condor) contains your BUILDID string, in this case it was &lsquo;tstclair_local&rsquo;.</p>
+
+<hr />
+
+<h2>Potential Use Cases</h2>
+
+<p>It&rsquo;s fairly obvious why a developer would want to do this, but it has many potential use cases outside of just development, which include:</p>
+
+<ul>
+<li>Beta testing a new installation prior to a pool upgrade.</li>
+<li>Testing version compatibility across releases.</li>
+<li>Playing with new shiney condor features in a existing pool.</li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Timothy St. Clair</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2012-11-12T03:00:00-06:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>12</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>3:00 am</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/computing/'>computing</a>, <a class='category' href='/blog/categories/condor/'>condor</a>, <a class='category' href='/blog/categories/grid-computing/'>grid computing</a>, <a class='category' href='/blog/categories/htcondor/'>htcondor</a>, <a class='category' href='/blog/categories/mrg-grid/'>mrg grid</a>, <a class='category' href='/blog/categories/red-hat/'>red hat</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://timothysc.github.io/timothysc.guthub.io/blog/2012/11/12/condor-sudo/" data-via="timothysc" data-counturl="http://timothysc.github.io/timothysc.guthub.io/blog/2012/11/12/condor-sudo/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/09/21/condor-n-overt/" title="Previous Post: Elastic Grid with Condor and oVirt Integration">&laquo; Elastic Grid with Condor and oVirt Integration</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/02/22/perprocess/" title="Next Post: Per-Process Mount Namespaces">Per-Process Mount Namespaces &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2017/03/04/moved-to-medium/">Moved to Medium</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/08/mesos-breeze/">Getting Started With Mesos on Fedora 21 and CentOS 7</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/02/17/bdas-tachyon/">Hot Rod Hadoop With Tachyon on Fedora 21 (Rawhide)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/09/14/hadoop-mapreduce/">Bootstrapping Your MapReduce 2.X Programming on Fedora 20</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/06/14/systemd-cgroup-sla/">Leveraging Systemd Cgroup Integration to Provide SLAs on Fedora 18 & 19</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/timothysc">@timothysc</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'timothysc',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2017 - Timothy St. Clair -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'timothysc';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://timothysc.github.io/timothysc.guthub.io/blog/2012/11/12/condor-sudo/';
+        var disqus_url = 'http://timothysc.github.io/timothysc.guthub.io/blog/2012/11/12/condor-sudo/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
